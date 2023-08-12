@@ -1,0 +1,313 @@
+=================================== ISO MODEL ===================================
+
+1) The purpose of networking is for two hosts to communicate with each other.
+   - Networking automates the transferring of data. Meaning, instead of writing data on a floppy disk and then running to 
+the next host to read the data. We can simply send data over a network.
+
+2) Networking has rules, similar how languages have grammatical rules.
+   - The rules for networking is comprised of seven layers. These layers are called the "ISO Model".
+   - Each layer builds on top of the previous layer. Therefore, we will show the model in reverse numerical order.
+   - Each layer serves a specific function
+
+ISO Model
+
+        ______________
+  7.   [  Application ]---\
+        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯     ¯¯¯\
+        ______________         ¯¯¯\
+  6.   [ Presentation ]--------- [ Vague Terminology ]
+        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯         ___/
+        ______________     ___/
+  5.   [    Session   ]---/
+        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+        ______________
+  4.   [   Transport  ] - Service to Service
+        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+        ______________
+  3.   [    Network   ] - End to End (Source to Destination)
+        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+        ______________
+  2.   [   Data Link  ] - Hop to Hop (Movement between NICs)
+        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯     
+        ______________
+  1.   [   Physical   ] - Allows Transporting of Bits   
+        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+
+Layer 1. Physical - Transporting Bits
+   - Computer data exists in the form of bits. (0s and 1s).
+   - Something has to transport those bits between hosts. 
+   - Anything that contributes to moving bits from one host to the next is considered a Layer 1 technology.
+   - Technologies include: Ethernet cables (Cat 5, Cat 6), coaxial cables, fiber optic cables, USB, HDMI, etc.
+   - WIFI is also part of the Physical layer, even though it is "wireless"
+   - Additionally, REPEATERS are also Layer 1 technologies.
+
+
+Layer 2. Data Link - Hop to Hop (Movement between NICs) *Like a Bunny hop
+   - Interacts with the wire (i.e. Physical Layer)
+   - NIC - Network Interface Cards / Wi-Fi Access Cards
+   - Technologies Include: NICs, Switches 
+   - Hop to Hop is the movement between NICs
+   - Every NIC has a unique MAC address (Media Access Controll Address))
+
+ 
+Addressing Scheme for a Hop - MAC Addresses
+- 48 bits, 12 hex digits
+Windows: 94-65-9C-3B-8A-E5 (dashes)
+LINUX: 9465:9C3B:8AE5      (colon)
+CISCO: 9465.9C3B.8AE5      (dots)
+                                                                                        
+
+        ___ Hop ___          ___ Hop ___          ___ Hop ___          ___ Hop ___               
+      _/           \_      _/           \_      _/           \_      _/           \_   
+     /               \    /               \    /               \    /               \    
+[Host 1]-----------[Router 1]-----------[Router 2]-----------[Router 3]-----------[Host 2]
+{a1a1}           {b2b2}   {b3b3}      {c4c4}   {c5c5}      {d6d6}   {d7d7}        {e8e8}
+
+
+Layer 3. Network - End to End
+   - Utilizes IP Addresses 
+   - Technologies Include: Routers, Hosts, (anything with an IP Address)
+
+Addressing Scheme for Layer 3 - IP Addresses
+- 32 bits, represented as 4 octets, each 0-255 (x.x.x.x)
+IP Address: 172.68.2.33
+
+
+QUESTION:
+          If we have MAC Addresses at Layer 2, why do we need IP Addresses at Layer 3??
+          
+          How do they work together?
+
+A packet of data is "decorated" with the source IP Address and the Destination IP Address. They also contain the current 
+NIC's MAC Address and the next hop's MAC Address.
+
+       ______________       ______________       ______________       ______________
+      | a1a1 -> b2b2 |     | b3b3 -> c4c4 |     | c5c5 -> d6d6 |     | c5c5 -> d6d6 |
+      |172.68->168.33| ->  |172.68->168.33| ->  |172.68->168.33| ->  |172.68->168.33|
+      [01010111101010]     [01010111101010]     [01010111101010]     [01010111101010]
+       ¯¯¯¯¯¯¯¯¯¯¯¯¯¯       ¯¯¯¯¯¯¯¯¯¯¯¯¯¯       ¯¯¯¯¯¯¯¯¯¯¯¯¯¯       ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+        ___ Hop ___          ___ Hop ___          ___ Hop ___          ___ Hop ___
+      _/           \_      _/           \_      _/           \_      _/           \_
+     /               \    /               \    /               \    /               \
+[Host 1]-----------[Router 1]-----------[Router 2]-----------[Router 3]-----------[Host 2]
+{a1a1}           {b2b2}   {b3b3}      {c4c4}   {c5c5}      {d6d6}   {d7d7}        {e8e8}
+(172.68)                                                                          (168.33)       
+ 
+The protocol which will link Layer 2 and Layer 3 together is called ARP (Address Resolution Protocoll)
+
+
+Layer 4. Transport - Service to Service
+    - Layer 4 is responsible for distinguishing Datastreams. Imagine you are running multiple services, such as messanger, 
+bank.com and Minecraft. Layer 4 is able to distinguish the datastreams and send and receive the right data to the right 
+destination.
+    - Layer 4 is acting as a liaison between the higher application layers and the lower network layers.
+    - It distinguishes datastreams
+    - Layer 4 has another Addressing Scheme: PORTS
+    - 0-65535 (2^16) TCP - Transmission Control Protocol - Meant for reliability
+    - 0-65535 (2^16) UDP - User Datagram Protocol - Meant for efficiency
+    - Servers listen for requests to pre-defined Ports
+    - Clients select a random port for each connection, where the response traffic will arrive.
+
+
+
+                                                                     ___________________ 
+                                                                    [   IP: 2.2.2.2     ]
+                                                                    |   www.bank.com    |
+                 ____________________                               [  HTTPS - TCP/443  ]
+                [SRC:  1.1.1.1 : 9999]                               ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+ ____________   [DEST: 3.3.3.3 : 80  ]                               ___________________ 
+[ IP: 1.1.1.1]-->--->--->--->--->--->--->--->--->--->--->--->--->-->[   IP: 3.3.3.3     ]
+|    Host    |                                                      |   www.site.com    |
+[            ]<--<---<---<---<---<---<---<---<---<---<---<---<---<--[   HTTP - TCP/80   ]                              
+ ¯¯¯¯¯¯¯¯¯¯¯¯                           [SRC:  3.3.3.3 : 80  ]       ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+                                        [DEST: 1.1.1.1 : 9999]       ___________________ 
+                                         ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯       [   IP: 4.4.4.4     ]
+                                                                    |   Chat Server     |
+                                                                    [  IRC - UDP/6667   ]
+                                                                     ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+                                                                     ___________________ 
+                                                                    [   IP: 2.2.2.2     ]
+                                                          _________ |   www.bank.com    |
+                                             ____________/          [  HTTPS - TCP/443  ]
+                                ____________/                        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+ ____________      ____________/                                     ___________________ 
+[ IP: 1.1.1.1] ---/                                                 [   IP: 3.3.3.3     ]
+|    Host    | ---------------------------------------------------- |   www.site.com    |
+[            ] ---\                                                 [  HTTP - TCP/80  ]                              
+ ¯¯¯¯¯¯¯¯¯¯¯¯      ¯¯¯¯¯¯¯¯¯¯¯¯\                                     ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+                                ¯¯¯¯¯¯¯¯¯¯¯¯\                        ___________________ 
+                                             ¯¯¯¯¯¯¯¯¯¯¯¯\          [   IP: 4.4.4.4     ]
+                                                          ¯¯¯¯¯¯¯¯¯ |   www.bank.com    |
+                                                                    [  IRC - UDP/6667   ]
+                    TCP 1.1.1.1:8888 <-->  2.2.2.2:443               ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+                    TCP 1.1.1.1:9999 <-->  3.3.3.3:80
+                    TCP 1.1.1.1:7777 <-->  4.4.4.4:6667
+                                            
+
+These ports will ensure that the right application will receive the right data.
+
+The datastreams are being kept isolated from each other.
+    - This allows browsers to work correctly. If you have multiple tabs open, each tab is communicating with a different 
+port on your end.
+    - This prevents the accidental "misplacing" of information on wrong websites. It would be like walking to your neighbor 
+Ted and accidentally finding your friend Nathan R. instead of Ted. Weird, I know.
+    - This also allows for upped security, as attackers cannot simply listen in to the bytestreams, as they are isolated to 
+different ports.
+
+ _____________                                          ___________________ 
+[ IP: 1.1.1.1 ]----------------------------------------[   IP: 3.3.3.3     ]
+|    Host     |----------------------------------------|   www.site.com    |
+[             ]----------------------------------------[  HTTP - TCP/80    ]                              
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯                                          ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                    
+                  TCP 1.1.1.1:6666 <-->  3.3.3.3:80 
+                  TCP 1.1.1.1:9999 <-->  3.3.3.3:80  
+                  TCP 1.1.1.1:5555 <-->  3.3.3.3:80
+
+
+Layer 5/6/7
+    - The distinction between these three layers is generally considered vague.
+    - Most developers can implement these layers in different orders or leave certain layers out.
+    - L1-L4 are most important to understand how data flows
+    - The TCP/IP Model combines Layers 5-7 into just the "Application" layer, as well as 1+2 for Network Access.
+
+
+     OSI Model                          TCP/IP Model
+ __________________                  __________________
+[  Application | 7 |----\           [              |   |
+|--------------|---|     ¯¯¯¯\_____ |              |   |
+| Presentation | 6 |--------------- |  Application | 4 |
+|--------------|---|     ____/¯¯¯¯¯ |              |   |
+|   Session    | 5 |----/           |              |   |
+|--------------|---|                |--------------|---|
+|  Transport   | 4 |--------------- |  Transport   | 3 |
+|--------------|---|                |--------------|---|
+|   Network    | 3 |--------------- |   Network    | 2 |
+|--------------|---|                |--------------|---|
+|  Data Link   | 2 |----\____       |    Network   |   |
+|--------------|---|         }----- |    Access    | 1 |
+[   Physical   | 1 ]----/¯¯¯¯       [              |   ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                  ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+Okay cool... but how does data actually flow?
+
+
+*** Encapsulation Process ***
+
+[Host A] has an application which will generate data.
+   - This happens in layers 7,6, and 5.
+
+[ Data ]
+
+
+This data will first be sent to Layer 4 (Transport).
+   - In this layer, the data will receive a "HEADER"
+   - This header will facilitate the goal of layer 4, which is "Service to Service" delivery.
+   - Layer 4 adds source and destination port numbers to direct data to the correct application on the receiving device.
+
+[TCP [ ~Data~ ]]  <- This is now called 'Segment'
+*For Layer 4, the data is just 0s and 1s.
+
+This Segment will then be sent to Layer 3 (Network).
+   - In this layer, the Segment will receive another "HEADER"
+   - This header will facilitate the goal of layer 3, which is "End to End" delivery.
+   - Layer 3 adds source and destination IP Address.
+
+[IP [~TCP [ Data ]~]]  <- This is now called 'Packet'
+*For Layer 3, the Segment is just 0s and 1s. It doesn't know or care what's being sent. 
+
+
+This Packet will then be sent to Layer 2 (Data Link).
+   - In this layer, the Packet will receive another "HEADER"
+   - This header will facilitate the goal of layer 2, which is "Hop to Hop" delivery.
+   - Layer 2 adds source and destination MAC Addresses.
+  
+[L2 [~IP [TCP [ DATA ]]]~]  <- This is now called 'Frame'
+*For Layer2, the Packet is just 0s and 1s. It doesn't know or care what's being sent.
+
+
+This Frame will then be sent to Layer 1 (Physical).
+   - In this layer, Frame will be converted to 0s and 1s.
+   - The bits will then be sent onto the wire and start traveling.
+
+
+ __________________                                              
+|              |   |                                             
+|              |   |                                             
+|  Application | 5 |    [ Data ]                                 
+|              |   |                                             
+|              |   |                                             
+|--------------|---|                                             
+|  Transport   | 4 |    [TCP ~[ Data ]~] <- Segment              
+|--------------|---|                                             
+|   Network    | 3 |    [IP ~[TCP [ Data ]]~] <- Packet          
+|--------------|---|                                             
+|  Data Link   | 2 |    [L2 ~[IP [TCP [ Data ]]]~] <- Packet     
+|--------------|---|                                             
+|   Physical   | 1 |    [110101010101001100010011110010101010001]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                                              
+
+
+*** De-Encapsulation ***
+
+The receiving host will take the bits off the wire, and convert them back into their Frame.
+
+Then, the Layer 2 of the receiving host will check if the NIC ( ~MAC Address) matches its own, if so, it gets converted to 
+its Packet. Thereby discarding the Frame header.
+
+Then, the layer 3 of the receiving host will check the Packet and determine whether the IP address matches with its own. If 
+so, it will then convert it to Segment. Thereby discarding the Packet header.
+
+Then, the layer 4 of the receieving host will check the Segment for the destination port and will strip the Segement of its 
+port header, and send the data to the corresponding application.
+
+                                           __________________
+                                          [              |   |
+                                          |              |   |
+                                [ Data ]  |  Application | 5 |
+                                          |              |   |
+                                          |              |   |
+                                          |--------------|---|
+                        [TCP ~[ Data ]~]  |  Transport   | 4 | - Strip Port
+                                          |--------------|---|
+                   [IP ~[TCP [ Data ]]~]  |   Network    | 3 | - Strip IP
+                                          |--------------|---|
+              [L2 ~[IP [TCP [ Data ]]]~]  |  Data Link   | 2 | - Strip MAC
+                                          |--------------|---|
+[110101010101001100010011110010101010001] [   Physical   | 1 ] - Convert Bits
+                                           ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+
+===================== OVERVIEW =====================
+
+Network Devices operate at specific Layers
+   - Layer 2 devices can only look into the datagram up to Layer 2 headers (Switches)
+   - Layer 3 devices only look into the datagram up to Layer 3 header (Routers)
+   - Which means that each layer only operates in their own Layer. So they are essentially idiots. Can't look beyond whats 
+presented to them. They lack creativity. They are just cold heartless lines of code designed to do a job which doesn't 
+require any intelligence.
+
+Network Protocols can also only operate at specific layers.
+
+
+** The OSI Model is just a Model - it is not set in stone. Exceptions exist. It is just a way to conceptualization how data 
+flows **
+
+
+                                      __________________
+                           /------   [  Application | 7 |
+                          /          |--------------|---|
+                   [ Data ]-------   | Presentation | 6 |
+                          \          |--------------|---|
+                           \------   |   Session    | 5 |
+                                     |--------------|---|--------------------|----------------|--------------------|
+      Segment      [TCP ~[ Data ]~]  |  Transport   | 4 | Service to Service |  TCP/UDP Ports |                    |
+                                     |--------------|---|--------------------|----------------|--------------------|
+      Packet  [IP ~[TCP [ Data ]]~]  |   Network    | 3 |     End to End     |  IP Addresses  | Routers, Hosts     |
+                                     |--------------|---|--------------------|----------------|--------------------|
+   Frame [L2 ~[IP [TCP [ Data ]]]~]  |  Data Link   | 2 |     Hop to Hop     |  MAC Addresses | Switches           |
+                                     |--------------|---|--------------------|----------------|--------------------|
+Bits [110101010101001...1111010001]  [   Physical   | 1 ] Transporting Bits  |                | Cables, WiFi, Hubs |
+                                      ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+                                         OSI Model              Function          Addressing          Devices
+

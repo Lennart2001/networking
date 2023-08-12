@@ -1,0 +1,132 @@
+======================= Foreign Network Communication =======================
+
+https://youtu.be/JI9Zm2tbUoE
+
+
+Topology for this scenario:
+                                                                                
+ _____________                  ________                    _____________       
+[             ]                [        ]                  [             ]      
+|    Host A   |----------------| Router |------------------|    Host B   |      
+|-------------|                |--------|----              |-------------|      
+|MAC: a2a2    |                |MAC: c4c4    |             |MAC: c4c4    |      
+|IP:10.1.1.22 |                |IP:10.9.9.44 |             |IP:10.9.9.44 |      
+|Subnet: /24  |                |Subnet: /24  |             |Subnet: /24  |      
+|-------------|----|            ¯¯¯¯¯¯¯¯¯¯¯¯¯              |-------------|----| 
+|Gateway:10.1.1.1  |                                       |Gateway:10.9.9.1  |
+|------------------|                                       |------------------|
+|  ARP Cache       |                                       |  ARP Cache       | 
+|                  |                                       |                  | 
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                                         ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯  
+
+- Host A, Host C and the Router all have IP Addresses and MAC Addresses.
+   - The Subnet Mask is 255.255.255.0 OR /24
+   - Again, since all have IP/MAC Addresses 
+- Host A wants to send data to Host C
+   - Host A knows Host C's IP Address
+      - Provided by User or Application
+   - Host A also knows that Host C is on a foreign Network
+      - It knows this through comparing IP Addresses 
+      - More infos for subnetting can be found in the Subnetting Folder.
+
+Since Host A knows which IP Address it's trying to speak to, it's able to create a Layer 3 Header.
+  - Layer 3 is responsible for "End to End" Delivery
+
+Now, Host A needs to create a Layer 2 Header.
+  - Layer 2 is responsible for "Hop to Hop" Delivery 
+  - The next "Hop" is the router. (Host A -> Router -> Host C)
+Currently, Host A does not know the MAC Address of the Router
+
+- Host A uses ARP to resolve the MAC Address of the Router's IP
+  - The Router IP Address is configured as the "Gateway" Address for Host A
+- Host A shoots out an ARP request to the Router:
+
+     ARP Request                      
+ ____________________                 
+[AYYOO, FUCK UP OUTTA|                
+|HERE. If anyone     |                
+|out there has an    |                
+|IP 10.1.1.1, send   | L2 Header      
+|me ur MAC. My IP/MAC|--------------  
+|Address is 10.1.1.22| SRC: a2a2    | 
+[/a2a2. Peace.       ] DEST: ffff   | 
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯  
+
+- Following the Router's ARP Response, Host A will be able to Populate its ARP Cache with the Router's IP/MAC Mapping.
+
+ _____________                  ________                    _____________      
+[             ]                [        ]                  [             ]     
+|    Host A   |----------------| Router |------------------|    Host B   |     
+|-------------|                |--------|----              |-------------|     
+|MAC: a2a2    |                |MAC: c4c4    |             |MAC: c4c4    |     
+|IP:10.1.1.22 |                |IP:10.9.9.44 |             |IP:10.9.9.44 |     
+|Subnet: /24  |                |Subnet: /24  |             |Subnet: /24  |     
+|-------------|----|            ¯¯¯¯¯¯¯¯¯¯¯¯¯              |-------------|----|
+|Gateway:10.1.1.1  |                                       |Gateway:10.9.9.1  |
+|------------------|                                       |------------------|
+|  ARP Cache       |                                       |  ARP Cache       |
+|10.1.1.1 --> c4c4 |                                       |                  |
+[10.9.9.44 --> ????]                                        ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯  
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                                                            
+
+Using the newly acquired Header, Host A is able to complete the Header for Layer 2 for the Segment.
+   - Since Host A knew the destination IP Address, it could immidiatly create the Layer 3 Header.
+      - This Data + Layer 3 Header = Segment
+   - Segment + Layer 2 Header = Packet
+
+The Packet looks like this currently:
+
+[[[Data] L3] L2]
+
+
+The Packet is now sent to the Router.
+   - Once the Packet arrives at the Router, the router discards the Layer 2 header.
+   - The packet is now a Segment again.
+   - Now, the Router takes over. Host A has "lost control" over the data. Host A can't influence it anymore. 
+   - The Router now creates the appropriate Layer 2 Header for the Segment.
+   - This means, whether there are multiple routers between Host A and Host C or just One is irrelevant. 
+   - Additionally, the ARP Cache of the Router is Host A's exit (Gateway). 
+      - This means, if Host A would like to speak to Host C again, we can use it to communicate the Router's IP/MAC Mapping.
+      - ADDITIONALLY, since the Router is Host A's network exit, ANY messages to a host in a foreign network will have to be 
+sent through the router (network exit). This means, we can reuse the IP/MAC Mapping of the Router whenever we have to leave 
+the network. This only works because Host A doesn't care what happens to the data. It is like a careless mother sending out 
+their child to a cab and says "Now go my child. The cab will take you now." Host A only sends the Data to the cab (router) 
+via the Layer 2 Header. For anything outside the network, the Layer 2 Header will stay the same. Blame the router. Never 
+your code.
+
+
+================= OVERVIEW =================
+
+Host A's first step when sending data is always the same.
+   - Determine if target IP address is on a local or foreign network.
+      - Foreign - ARP for Default Gateway IP
+      - Local   - ARP for Target IP
+
+
+
+                                                                      _____________
+                    _____________                                    [    Host E   ]
+                   [             ]                              /----|IP: 10.7.7.66|
+                   |    Host B   |             __________    __/     [             ]
+                   |-------------|            [          ]--/         ¯¯¯¯¯¯¯¯¯¯¯¯¯
+                   |MAC: a2a2    |         /--| Internet |
+                   |IP:10.1.1.22 |        /   [          ]--\         _____________
+                   |Subnet: /24  |        |    ¯¯¯¯¯¯¯¯¯¯    ¯¯\     [    Host D   ]
+                    ¯¯¯¯¯¯¯¯¯¯¯¯¯         |                     \----|IP: 10.8.8.77|
+                           |              |                          [             ]
+ -> -> -> ->               |              |                           ¯¯¯¯¯¯¯¯¯¯¯¯¯
+[Data][L3][L2]             |           ___|____                         _____________
+|-------------|            |          [        ]                       [             ]
+|    Host A   |------------|----------| Router |-----------------------|    Host B   |
+|-------------|                       |--------|----                   |-------------|
+|MAC: a2a2    |                       |MAC: c4c4    |                  |MAC: c4c4    |
+|IP:10.1.1.22 |                       |IP:10.9.9.44 |                  |IP:10.9.9.44 |
+|Subnet: /24  |                       |Subnet: /24  |                  |Subnet: /24  |
+|-------------|----|                   ¯¯¯¯¯¯¯¯¯¯¯¯¯                   |-------------|----|
+|Gateway:10.1.1.1  |                                                   |Gateway:10.9.9.1  |
+|------------------|                                                   |------------------|
+|  ARP Cache       |                                                   |  ARP Cache       |
+|10.1.1.1 --> c4c4 |                                                   |                  |
+[10.9.9.44 --> ????]                                                    ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+

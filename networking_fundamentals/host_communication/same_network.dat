@@ -1,0 +1,148 @@
+====================== Hosts Connected to Each Other Directly ======================
+
+
+[ Data ]-->
+ _____________                                          _____________
+[             ]                                        [             ]
+|    Host A   |----------------------------------------|    Host B   |
+[             ]                                        [             ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯                                          ¯¯¯¯¯¯¯¯¯¯¯¯¯
+a2a2  <- MAC Address                                   b3b3  <- MAC Address
+10.1.1.22  <- IP Address                               10.1.1.33  <- IP Address
+255.255.255.0  <- Subnet Mask                          255.255.255.0  <- Subnet Mask
+
+
+- Host A and Host B are directly connected with each other.
+- Both Hosts have a NIC, and therefore a MAC Address
+- Both Hosts are configured with an IP Address and a Subnet Mask
+  - Subnet Masks Identify the size of the IP Network.
+  - Go to the Subnet Folder for more info.
+
+- Host A has some data, which it would like to send to Host B
+  - Networking doesn't care what the data is. It is just 0s and 1s.
+- Host A also knows the IP Address of Host B (How?
+  - It is generally required for the host to know the receiving IP Address. 
+  - Unless we are broadcasting to all other hosts on the network or in multicast communication.
+- Host A also knows that the IP Address of Host B is on its own network via the Subnet Mask.
+  - Again, if unsure about subnet mask, check out the subnetting folder for more info.
+
+With the knowledge of the Host B's IP Address, Host A is able to attach the Layer 3 Header.
+  - this includes the source IP Address (Host A) and the destination IP Address (Host B)
+  - Which is End to End
+[Layer 3 ~[ Data ]~]  <- This is now a Segment
+
+However, Host A does not know Host B's MAC Address
+  - To find the MAC Address of Host B, Host A must use the ARP (Address Resolution Protocol)
+  - So, Host A uses ARP to resolve target's MAC Address
+It essentially sends out a message saying:
+
+ ____________________ 
+[AYYOO, FUCK UP OUTTA|
+|HERE. If anyone     |
+|out there has an    |  <- Segment
+|IP 10.1.1.33, send  |
+[me ur MAC.          ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+It will also include its own IP and MAC Address:
+Through the adding of the MAC Address header, it will become a Packet.
+ ____________________
+[AYYOO, FUCK UP OUTTA|
+|HERE. If anyone     |
+|out there has an    |
+|IP 10.1.1.33, send  |  <- Packet
+|me ur MAC. My IP/MAC|
+|Address is 10.1.1.22|
+[/a2a2. Peace.       ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+https://www.youtube.com/shorts/ermrsEgQQe4
+
+The reason for including your own IP/MAC Address is so that Host B is able to send a response directly to Host A back.
+  - The ARP request includes the sender's MAC Address.
+  - ARP Request is a Broadcast, which means that it sends the question "Who dis?" to every single host on the network.
+     - The destination MAC Address for such a request is: ffff.ffff.ffff
+     - This is a specially reserved MAC Address which sends Packets to everyone on the local network.
+  - ARP Mappings are stored in an ARP Cache 
+     - ARP Cache are used to store "routes" for packets for faster communication between hosts. 
+     - Allows devices to quickly determine the MAC address corresponding to an IP address without repeatedly issuing ARP 
+requests.
+  - Once Host B receives the package it will send an ARP response Unicast
+  - Once Host A receives Host B's ARP response, it will update its own ARP Cache
+
+
+-- Quick Overview --
+
+ARP Request: A host (Host A) sends an ARP request as a broadcast to all devices on the local network segment, asking for the 
+MAC address corresponding to a specific IP address (e.g., Host B's IP address).
+
+ARP Response: The host with the matching IP address (Host B) sends an ARP response containing its MAC address. This response 
+is sent as a unicast transmission, directed specifically to Host A's MAC address.
+
+Updating ARP Cache: Host A receives the ARP response and updates its ARP cache with the IP-to-MAC mapping for future 
+communication.
+
+1)                    ARP Request
+                 ____________________
+                [AYYOO, FUCK UP OUTTA|
+                |HERE. If anyone     |
+                |out there has an    |
+                |IP 10.1.1.33, send  | L2 Header
+                |me ur MAC. My IP/MAC|--------------
+                |Address is 10.1.1.22| SRC: a2a2    |
+                [/a2a2. Peace.       ] DEST: ffff   |
+                 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+ _____________                                          _____________      
+[             ]                                        [             ]     
+|    Host A   |----------------------------------------|    Host B   |     
+|             |                                        [             ]     
+|-------------|----|                                   |-------------|----|
+|  ARP Cache       |                                   |  ARP Cache       |
+|10.1.1.33 --> ????|                                   |                  |
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                                     ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+
+2)
+Host B knows the MAC Address of Host A, therefore Host B is able to Unicast send a response back to Host A.
+
+                     ARP Response                    
+                 _____________________  L2 Header      
+                |YOOO, I am 10.1.1.33,|-------------- 
+                |and my MAC Address is| SRC: b3b3    |
+                |b3b3.                | DEST: a2a2   |
+                 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+ _____________                                          _____________
+[             ]                                        [             ]
+|    Host A   |----------------------------------------|    Host B   |
+|             |                                        [             ]
+|-------------|----|                                   |-------------|----|
+|  ARP Cache       |                                   |  ARP Cache       |
+|10.1.1.33 --> ????|                                   |10.1.1.22 --> a2a2|
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                                     ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+3)
+Once the response from Host B comes back to Host A, Host A is able to populate its ARP Cache with Host B's IP/MAC Mapping.
+
+ _____________                                          _____________
+[             ]                                        [             ]
+|    Host A   |----------------------------------------|    Host B   |
+|             |                                        [             ]
+|-------------|----|                                   |-------------|----|
+|  ARP Cache       |                                   |  ARP Cache       |
+|10.1.1.33 --> b3b3|                                   |10.1.1.22 --> a2a2|
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                                     ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+
+
+========= OVERVIEW =========
+
+
+Host A doesn't know Host B's MAC Address. 
+
+Host A sends a ARP Request to Host B's IP Address saying "If you have *** IP, send me your MAC. This is my IP/MAC."
+
+Host B receives the ARP Request and populates its ARP Cache with Host A's IP/MAC Mapping.
+
+Host B then sends back a ARP Response Unicast (directly to Host A, saying "I am ***. My MAC IS ***."
+
+Host A then populates its ARP Cache with Host B's IP/MAC Mappings.
+
+Host A then Encapsulates the Data using the IP/MAC Mappings for Host B from its ARP Cache. Allowing the data to be 
+transmitted to Host B.

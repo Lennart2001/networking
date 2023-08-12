@@ -1,0 +1,147 @@
+======================================== NETWORK DEVICES ========================================
+
+1) Hosts are any device which requests data from some other device.
+2) Servers are any device which can send data upon request.
+3) IP Addresses are are the identity of every Host(1) - similar to a street address: Country.State.City.Street.House 
+4) Networks transport traffic between hosts. If two computers are connected, then this constitutes a network.
+   - Networks are a grouping of hosts.
+5) Sub-Networks (Subnets) are the logical grouping of hosts. For instance, routers create sub-networks.
+   - Subnets are logical grouping of interconnected network devices. The subdivision of a network into smaller networks helps to 
+improve network performance and security. Devices on the same subnet have IP addresses that fall within the same range as defined by a 
+subnet mask.
+6) Repeaters are there to ensure that data doesn't deteriorate/diminish during travel. If two hosts are far away from each other, data 
+decays during travel. To prevent this, repeaters repeat the data and "fix" or "re-generate" it which allows them to continue to 
+travel far.
+   - This allows for hosts to be far away from each other.
+   - The scaling is not linear:
+     N: Number of Hosts
+     M_[N]: Number of Connections for N Hosts
+     M_0 = 0
+     Formula: (N-1) + (M_[N-1]) = M_[N]
+     Example2:
+     N = 1
+     (1-1) + (M_0) = M_1
+     ** 0 = M_1 **
+     N = 2
+     (2-1) + (M_1) = M_2
+     (1) + (0) = M_2
+     If, there is only one host: No connections to other hosts.
+     If, there is two hosts: One connection between the hosts.
+     Other formula = Edges = N * (N-1) / 2
+7) Hubs are, simply put, a multi-port repeater. Hubs also re-generate data. If a host sends data to the hub, the hub then sends out all 
+of the re-generated (fresh) data to the remaining hosts.
+   - Hubs also facilitate scaling. 
+   - The scaling is linear. Only one new connection per new computer. Edges = N
+8) Bridges sit between hub-connected networks. They also only have two ports. They are also able to learn which computers 
+sit on which side of the bridge.
+   - A bridge has two sides: Side "A" and side "B". Computers on side A have to go through the bridge to get to side B. 
+   - Bridges are able to "learn" on which side the computer sits, thus improving efficiency of the network.
+
+
+             [Computer 1]                         [Computer 4]
+                     |                                |
+                     |     ( A )            ( B )     |
+[Computer 2]------[ Hub ]--------[ Bridge ]--------[ Hub ]------[Computer 5]
+                     |                                |
+                     |                                |
+             [Computer 3]                         [Computer 6]
+
+
+9) Switches facilitate communications WITHIN  a network. They are a combination of Hubs(7) and Bridges(8).
+   - Switches act like a hub, where they are able to send traffic from any port to any other port. 
+   - Switches are alos like a bridge, where they can learn where to send the traffic. Meaning, they are able to destinguish 
+between certain traffic.
+   - Unlike Bridges, Switches have multiple ports.
+
+               [Computer 1]
+                     |
+                     |
+[Computer 2]------\  |  /------[Computer 4]
+                [¯¯¯¯¯¯¯¯¯]
+                | Switch  |
+                [_________]
+[Computer 3]------/  |  \------[Computer 5]
+                     |
+                     |
+               [Computer 6]
+
+10) Routers facilitate communications BETWEEN different networks. 
+    - Routers are what allow your devices to communicate other networks.
+    - Since the internet is one huge network, routers are what enable communication with the internet.
+    - Routers provide a traffic control point. They secure, filter and redirect traffic. 
+    - They are the first line of defense against cyber attacks.
+    - Routers are a bottleneck for traffic. It is logical to apply security policies to the router. Hence, first line of 
+defense.
+    - Traditionally, switches could not perform filtering - However, some modern switches are able to do so.
+    - Routers have their own IP Address, which allows their hosts to exit the network. Meaning, the Routers IP Address is 
+the Gateway for the individual hosts. (Shown in 11)
+
+     [Computer 1]--\                                          /--[Computer 5]
+                    \                                        /
+                     \                                      /
+[Computer 2]------\   |                                    |   /------[Computer 6]
+                [¯¯¯¯¯¯¯¯¯¯]       [¯¯¯¯¯¯¯¯¯¯]       [¯¯¯¯¯¯¯¯¯¯]
+                |  Switch  |-------|  Router  |-------[  Switch  ]
+                [__________]       [__________]       [__________]
+[Computer 3]------/   |                 ||                 |   \------[Computer 7]
+                     /                  ||                  \
+                    /                   ||                   \                         
+     [Computer 4]--/                    ||                    \--[Computer 8]                      
+                                        ||
+                                  {¯¯¯¯¯¯¯¯¯¯¯¯}
+                                  {  Internet  }
+                                  {____________}
+
+    - Routers create the Hierarchy in Networks and the ENTIRE internet.
+
+
+                                           {¯¯¯¯¯¯¯¯¯¯¯¯}
+                                           {  Internet  }
+                                           {____________}
+                                                | |
+                                                | |
+                                               /   \
+BigCompany, Inc (10.x.x.x)                     |   |
+|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯   __/     \__   ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|
+|  New York (10.20.x.x)                   /             \                        Tokyo (10.40.x.x)  |
+|  ----------------------------- [  Router 4  ]      [  Router 5  ] ------------------------------  |
+|  |                              / / /  |                 |  \ \ \                              |  |
+|  | (10.20.55.x)                / / /   |                 |   \ \ \                (10.20.55.x) |  |
+|  | [Network 1]---[Router 1]---/ / /    |                 |    \ \ \---[Router 6]---[Network 4] |  |
+|  |                             / /     |                 |     \ \                             |  |
+|  | (10.20.66.x)               / /      |                 |      \ \                            |  |
+|  | [Network 2]---[Router 2]--/ /       |                 |       \ \--[Router 7]---[Network 5] |  |
+|  |                            /        |                 |        \                            |  |
+|  | (10.20.77.x)              /         |                 |         \                           |  |
+|  | [Network 3]---[Router 3]-/          |                 |          \-[Router 8]---[Network 6] |  |
+|  |                                     |                 |                                     |  |
+|   ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                   ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯   |
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+   - If a host in [Network 3] wants to send data to [Network 6], the data will travel like this:
+
+[Network 3] -> [Router 3] -> [Router 4] -> [Internet] -> [Router 5] -> [Router 8] -> [Network 6]
+
+
+11) Gateways are a host's way out of the local Network.
+    - If the host wishes to communicate to a different machine/host on a different network, they will have to use the local 
+network's gateway to exit their current local network. 
+
+
+
+(172.16.20.x)           (.1)[¯¯¯¯¯¯¯¯](.254)           (172.16.30.x)
+[Network 1]-----------------| Router ]-----------------[Network 2]
+*Gateway @ 172.16.20.1      [________]                 *Gateway @ 172.16.30.254
+
+    - If host in Network 1 wants to talk to host in Network 2, it will have to go through the Router
+
+
+12) Routing Tables are all the networks a Router(10) knows about. 
+    - Routers are able to learn which Networks they are attached to.
+    - These learned networks are called "routes" and are stored in the routing table.
+
+13) Routing is the process of moving data between networks.
+    - A Router is a device, whose primary purpose is routing.
+
+14) Switching is the process of moving data within a network.
+    - A Switch is a device, whose primary purpose is switching.
+
