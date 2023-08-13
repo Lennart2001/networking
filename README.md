@@ -8,7 +8,8 @@
   - **[Local Network](networking_fundamentals/host_communication/local_network.dat)**
   - **[Foreign Network](networking_fundamentals/host_communication/foreign_network.dat)**
 - **Switches**
-  - **[Singular Switches](networking_fundamentals/switches/singular_switches.dat)
+  - **[Switches Part 1](networking_fundamentals/switches/switches_part1.dat)**
+  - **[Switches Part 2](networking_fundamentals/switches/switches_part2.dat)**
 - **Routers**
 - **Networking Protocols**
 - **How Data Moves**

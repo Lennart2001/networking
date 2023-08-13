@@ -1,0 +1,112 @@
+======================== Unicast & Broadcast ========================
+
+Unicast Frame:
+- The destination MAC Address is another host
+- A Switch will only FLOOD if the destination MAC Address is not in the MAC Address Table of the Switch
+- Unicast Frames are occasionally FLOODED
+
+- Occurs when a switch receives a unicast frame (a frame intended for a specific destination MAC address) but doesn't have an entry for that destination MAC address in its MAC address table.
+- The switch floods the frame to all ports (except the incoming port), treating it similarly to a broadcast frame.
+- Ensures that the frame reaches its destination, even if the switch doesn't know which port that destination is connected to.
+
+
+Broadcast Frame:
+- The destination MAC Address is ffff.ffff.ffff
+- This is a specially reserved MAC Address, which tells the switch to FLOOD
+- If Host A sends a ARP Request it will send its MAC Address as source, and the destination as ffff.ffff.ffff
+- The LEARN process is the same, with ARP Requests and Unicast sends.
+- Broadcast Frames are ALWAYS FLOODED
+
+- Refers to a frame that is explicitly intended for all devices within a broadcast domain (e.g., a frame with a destination MAC address of ffff.ffff.ffff).
+- The switch forwards the broadcast frame to all ports within the same VLAN or broadcast domain (except the incoming port).
+- Used to discover devices, request information, or perform other tasks that require communicating with all devices within a broadcast domain.
+
+
+- Broadcast and Unicast are both an actual type of Frame.
+- The FLOOD is an action taken by the Switch.
+   - The Switch can only take THREE actions: Learn, Flood, and Forward
+
+- If traffic goes THROUGH a switch, the switch will never broadcast anything.
+- If traffic goes TO or FROM a switch, it may send Broadcasts.
+   - This only works because there the "Switch" acts as a HOST not a Switch.
+
+
+======================== VLANs (Virtual Local Area Network) ========================
+
+VLANs allows the dividing of Switch Ports into Isolated Groups.
+   - Each division acts as a "mini switch"
+   - All of these switches have the same functionality as the others
+      - They also LEARN, FLOOD and FORWARD frames
+      - Each "mini switch" has its own MAC Address Table
+      - They truly are mini switches
+   - All we are doing is confining a specific set of actions to a certain selection of ports.
+
+VLANS allow you to create smaller "mini switches" inside the larger Switch,
+thereby isolating the hosts connected to the individual switches.
+   - Devices within the same VLAN can communicate with each other as if they are on the same physical switch.
+   - Devices in different VLANs on the same switch cannot communicate directly, even though they are on the same physical hardware.
+
+VLANs within a switch are logically isolated from each other and act as separate broadcast domains.
+Even if they originate from the same physical switch, communication between different VLANs is
+not allowed by default at Layer 2.
+
+ _____________                                                       _____________
+[             ]                                                     [             ]
+|    Host A   |                                                     |    Host C   |
+[   MAC:a1a1  ]---\                    Switch                   /---[   MAC:c3c3  ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯     \___     _____________|_____________     ___/     ¯¯¯¯¯¯¯¯¯¯¯¯¯
+                       \___| 1 |         |         | 9 |___/
+                            ¯¯¯|  VLAN A |         |¯¯¯
+                               |         |         |
+                            ___|         |  VLAN B |___
+                       /¯¯¯| 2 |         |         | 10|¯¯¯\
+ _____________     /¯¯¯     ¯¯¯¯¯¯¯¯¯¯¯¯¯|¯¯¯¯¯¯¯¯¯¯¯¯¯     ¯¯¯\     _____________
+[             ]---/                      |                      \---[             ]
+|    Host B   |                                                     |    Router   |
+[   MAC:b2b2  ]                                                     [   MAC:d4d4  ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯                                                       ¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+VLAN A cannot communicate with VLAN B.                                                          
+
+======================== Multiple Switches Network ========================
+
+Similar to VLANs, Multiple Switches in a network all have their own MAC Address Table
+   - Switches perform switch actions independently
+       - If one switch knows where to go it won't FLOOD
+       - If one switch doesn't know it will FLOOD
+       - Again, these actions are independent from another
+
+ _____________                                                                  _____________
+[             ]                                                                [             ]
+|    Host C   |                                                                |    Host D   |
+[   MAC:cccc  ]---\                                                        /---[   MAC:dddd  ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯     \___     ____________              ____________     ___/     ¯¯¯¯¯¯¯¯¯¯¯¯¯
+                       \___| 2 |        |            |        | 5 |___/
+                            ¯¯¯|Switch A|___      ___|Switch B|¯¯¯
+                            ___|        | 3 |----| 4 |        |___
+                       /¯¯¯| 1 |        |¯¯¯      ¯¯¯|        | 6 |¯¯¯\
+ _____________     /¯¯¯     ¯¯¯¯¯¯¯¯¯¯¯¯              ¯¯¯¯¯¯¯¯¯¯¯¯     ¯¯¯\     _____________
+[             ]---/       MAC Address Table         MAC Address Table      \---[             ]
+|    Host A   |           |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|         |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|          |   Host B    |
+[   MAC:aaaa  ]           |   1  :  aaaa  |         |-> 4  :  aaaa  |          [  MAC:bbbb   ]
+ ¯¯¯¯¯¯¯¯¯¯¯¯¯            |-> 3  :  bbbb  |         |   6  :  bbbb  |           ¯¯¯¯¯¯¯¯¯¯¯¯¯
+                          |   2  :  cccc  |         |-> 4  :  cccc  |
+                          |-> 3  :  dddd  |         |   5  :  dddd  |
+                           ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯           ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+
+================ OVERVIEW ================
+
+
+Unicast Flooding is a switch's response to a unicast frame when the destination is unknown,
+whereas Broadcast is a deliberate communication to all devices within a broadcast domain.
+
+
+By now it should be clear that VLANs and multiple Switches behave differently.
+   - VLANs are based on the same switch, logically dividing itself.
+       - VLANs cannot communicate with each other.
+       - Unless other Layer 3 devices (Routers) are introduced.
+   - Multiple switches are physically divided. They are different devices.
+       - If there are multiple switches on the same network like shown above in Multiple Switches Network,
+         every host in that network can communicate with one another.
+
