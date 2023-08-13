@@ -5,9 +5,10 @@
 - **[Network Devices](networking_fundamentals%2Fnetworking_devices.dat)**
 - **[OSI Model](networking_fundamentals%2Fosi_model.dat)**
 - **[Host Communication](networking_fundamentals/host_communication)**
-  - **[Local Network](networking_fundamentals/host_communication/same_network.dat)**
+  - **[Local Network](networking_fundamentals/host_communication/local_network.dat)**
   - **[Foreign Network](networking_fundamentals/host_communication/foreign_network.dat)**
 - **Switches**
+  - **[Singular Switches](networking_fundamentals/switches/singular_switches.dat)
 - **Routers**
 - **Networking Protocols**
 - **How Data Moves**
