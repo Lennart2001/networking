@@ -14,6 +14,8 @@
 - **Networking Protocols**
 - **How Data Moves**
 
+## VLANs (Virtual Local Area Network)
+
 ## Subnetting
 
 ## TCP & UDP Mastery
