@@ -1,0 +1,104 @@
+====================== Routers ======================  https://youtu.be/AzXys5kxpAM
+
+
+Routing is the process of moving data between networks
+   - A Router is a device whose primary purpose is Routing
+
+Routers are connected to a network (just like hosts)
+   - Routers have an IP Address and a MAC Address
+
+
+┌---------------------------------------------------------------------------┐
+| RFC 2460:                                                                 |
+|                 Internet Protocol, Version 6 (IPv6)                       |
+|                            Specification                                  |
+|                                                                           |
+|  2. Terminology                                                           |
+|                                                                           |
+|      node      - a device that implements IPv6.                           |
+|                                                                           |
+|      router    - a node that forwards IPv6 packets not explicitly         |
+|                  addressed to itself.  [See Note below].                  |
+|                                                                           |
+|      host      - any node that is not a router.  [See Note below].        |
+|                                                                           |
+└---------------------------------------------------------------------------┘
+
+Therefore, the difference between a Router and a Host is:
+   - Routers forward packets not destined to themselves
+
+Routers maintain a map of all the Networks they know about
+   - This is called the Routing Table
+
+Routing Tables can be populated via THREE methods:
+   - Directly Connected: Routes for the networks which are attached
+   - Static Routes: Routes manually provided by an Administrator
+   - MORE BELOW
+
+
+      ┌----------------------------------┐                  ┌----------------------------------┐
+      |  Router 2 - Routing Table        |                  |  Router 1 - Routing Table        |
+      |----------------------------------|                  |----------------------------------|
+      | DC: 10.0.66.x/24 - Left          |                  | DC: 10.0.55.x/24 - Left          |
+      | DC: 10.0.55.x/24 - Right         |                  | DC: 10.0.44.x/24 - Right         |
+      | Static: 10.0.44.x/24 - 10.0.55.1 |                  | Static: 10.0.66.x/24 - 10.0.55.2 |
+      └----------------------------------┘                  └----------------------------------┘
+
+                         ┌--------------┐                   ┌------------┐
+ Network A               |              |  Network B        |            |  Network C
+┌------10.0.66.x /24-----|   Router 2   |---10.0.55.x /24---|  Router 1  |-----10.0.44.x /24------┐
+|                     .1 |              | .2             .1 |            | 1.                     |
+|                   eee3 └--------------┘ eee2         eee3 └------------┘ eee1                   |
+|                             |    |                            |    |                            |
+|   .7                        |    |         .8                 |    |                .9          |
+| c7c7 [Host C]               |    |        b8b8 [Host B]       |    |              a9a9 [Host A] |
+└---------------------- ------┘    └----------------------------┘    └----------------------------┘
+*IP Info                            *IP Info                          *IP Info
+10.0.66.1 -> Router                 10.0.55.1 -> Router               10.0.44.1 -> Router
+10.0.66.7 -> Host C                 10.0.55.8 -> Host B               10.0.44.9 -> Host A
+
+
+When Routers receive packets with an UNKNOWN Destination IP Address, the packet is DROPPED
+  - The routing table is the accumulated knowledge of the Router.
+  - Therefore, if the destination IP Address is not in the table, it believes the destination doesn't exist.
+  - Since Router 2 is not DIRECTLY connected to the Router 1, it won't have a direct route to it.
+
+In a static route, the router was manually given the address of where to send the packet when a specific scenario arises
+  - If Host C wants to send data to Host A, Router 2 must know that the IP Scheme of 10.0.44 can be accessed via IP 10.0.55.1
+     - If Router 2 doesn't know destination IP Address, the whole message gets discarded
+
+
+The THIRD method for populating a Routing Table is DYNAMIC ROUTING
+  - Dynamic Routes are routes learned automatically from other Routers
+  - In our Network (shown above) both Routers would exchange information
+     - Router 2 <------> Router 1
+     - Router 2 looks at Router 1's Routing Table, and notices that Router 1 knows how to handle
+       destination IP Addresses of 10.0.44.x. So, Router 2 just lazily says "If dest IP is 10.0.44.x send to Router 1"
+     - Similarly, Router 1 looks at Router 2's routing table and sees that Router 2 knows how to handle
+       destination IP Addresses of 10.0.66.x. So, Router 2 just lazily says "If dest IP is 10.0.66.x send to Router 2"
+  - How the Routers communicate with each other is governed by the Dynamic Routing Protocols
+     - RIP, OSPF, BGP, EIGRP, IS-IS
+     ┌-------------------------------┐       ┌-------------------------------┐
+     |  Router 2 - Routing Table     |       |  Router 1 - Routing Table     |
+     |-------------------------------|       |-------------------------------|
+     | DC: 10.0.66.x/24 - Left       |       | DC: 10.0.55.x/24 - Left       |
+     | DC: 10.0.55.x/24 - Right      |       | DC: 10.0.44.x/24 - Right      |
+     | Dyn: 10.0.44.x/24 - 10.0.55.1 |       | Dyn: 10.0.66.x/24 - 10.0.55.2 |
+     └-------------------------------┘       └-------------------------------┘
+
+Note how the Static Route (second figure) and the dynamic routes (third figure) are identical.
+The only difference between them is how these routes were learned.
+
+
+================ OVERVIEW ================
+
+Routing is the process of moving data between networks
+   - A Router is a device whose primary purpose is Routing
+
+Routers are connected to a network (just like hosts)
+   - Routers have an IP Address and a MAC Address
+
+Routing Tables can be populated via THREE methods:
+   - Directly Connected: Routes for the networks which are attached
+   - Static Routes: Routes manually provided by an Administrator
+   - Dynamic Routes: Routes learned automatically from other Routers
