@@ -7,10 +7,11 @@
 - **[Host Communication](networking_fundamentals/host_communication)**
   - **[Local Network](networking_fundamentals/host_communication/local_network.dat)**
   - **[Foreign Network](networking_fundamentals/host_communication/foreign_network.dat)**
-- **Switches**
+- **[Switches](networking_fundamentals%2Fswitches)**
   - **[Switches Part 1](networking_fundamentals/switches/switches_part1.dat)**
   - **[Switches Part 2](networking_fundamentals/switches/switches_part2.dat)**
-- **Routers**
+- **[Routers](networking_fundamentals%2Frouters)**
+  - **[Routers Part 1](networking_fundamentals/routers/routers_part1.dat)**
 - **Networking Protocols**
 - **How Data Moves**
 
