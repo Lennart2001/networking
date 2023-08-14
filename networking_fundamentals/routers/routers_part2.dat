@@ -1,0 +1,252 @@
+====================== Routers Part 2 ======================  https://youtu.be/AzXys5kxpAM
+
+Routers have an IP & MAC for each Network they are connected to
+
+Routers have Routing Tables - map of every network
+  - Populated with Directly Connected, Static Routes, Dynamic Routes
+  - Routing tables have to be configured ahead of time - unlike ARP tables
+  - If Routers do not know the destination IP Address (can't find it in Routing Table), the packet will be dropped.
+  
+
+Routers also have ARP Tables - mapping of L3 to L2 address
+  - Everything with an IP address has an ARP Table
+  - ARP Tables start out empty and get populated DYNAMICALLY
+     - They get populated as needed with network traffic
+  - This is the opposite of Routing tables, where Routing tables have to be configured ahead of time.
+
+
+┌------------------------------------------------------┐   ┌------------------------------------------------------┐
+|  Router 2 - Routing Table        | R2 - ARP Table    |   |  Router 1 - Routing Table        | R1 - ARP Table    |
+|----------------------------------|-------------------|   |----------------------------------|-------------------|
+| DC: 10.0.66.x/24 - Left          | 10.0.55.1 --> eee3|   | DC: 10.0.55.x/24 - Left          | 10.0.44.9 --> a9a9|
+| DC: 10.0.55.x/24 - Right         | 10.0.55.8 --> b8b8|   | DC: 10.0.44.x/24 - Right         | 10.0.55.8 --> b8b8|
+| Static: 10.0.44.x/24 - 10.0.55.1 | 10.0.66.7 --> c7c7|   | Static: 10.0.66.x/24 - 10.0.55.2 | 10.0.55.2 --> eee2|
+└------------------------------------------------------┘   └------------------------------------------------------┘
+
+                         ┌--------------┐                   ┌------------┐
+ Network A               |              |  Network B        |            |  Network C
+┌------10.0.66.x /24-----|   Router 2   |---10.0.55.x /24---|  Router 1  |-----10.0.44.x /24------┐
+|                     .1 |              | .2             .1 |            | 1.                     |
+|                   eee3 └--------------┘ eee2         eee3 └------------┘ eee1                   |
+|                             |    |                            |    |                            |
+|   .7                        |    |         .8                 |    |                .9          |
+| c7c7 [Host C]               |    |        b8b8 [Host B]       |    |              a9a9 [Host A] |
+└---------------------- ------┘    └----------------------------┘    └----------------------------┘
+*IP Info                            *IP Info                          *IP Info
+10.0.66.1 -> Router                 10.0.55.1 -> Router               10.0.44.1 -> Router
+10.0.66.7 -> Host C                 10.0.55.8 -> Host B               10.0.44.9 -> Host A
+
+
+
+================== EXERCISE ==================
+
+The Topology stays the same as above.
+We will only take a look at the Changing of the table, and comment what happens.
+Whenever we change the ARP Table, we will display a new Version
+   - Please only refer to the last version (within the exercise) when we are talking about the ARP Tables
+Also keep in mind, the Routing Table has to be filled out beforehand, otherwise the Routers would simply
+discard all the packets with unknown destination IP Addresses.
+
+┌------------------------------------------------------┐   ┌------------------------------------------------------┐
+|  Router 2 - Routing Table        | R2 - ARP Table    |   |  Router 1 - Routing Table        | R1 - ARP Table    |
+|----------------------------------|-------------------|   |----------------------------------|-------------------|
+| DC: 10.0.66.x/24 - Left          |                   |   | DC: 10.0.55.x/24 - Left          |                   |
+| DC: 10.0.55.x/24 - Right         |                   |   | DC: 10.0.44.x/24 - Right         |                   |
+| Static: 10.0.44.x/24 - 10.0.55.1 |                   |   | Static: 10.0.66.x/24 - 10.0.55.2 |                   |
+└------------------------------------------------------┘   └------------------------------------------------------┘
+
+
+- Host A would like to send some data to Host C.
+- Host A knows the destination IP Address and constructs a Layer 3 Header
+- Host A compares its own IP Address (and Subnet Mask) to the destination IP Address.
+  - If the destination IP Address is on a foreign Network, Host A knows to send the data to the Default Gateway
+     - In this case, Router 1 is the default Gateway for Host A
+
+Since Host A is trying to send its first ever packet to Router 1, it doesn't have R1's MAC Address in its ARP Table
+This means it can't create the Layer 2 Header for the Data. 
+
+- Host A must send an ARP Request for 10.0.44.1 (Default Gateway).
+   - How does it know to request that specific IP's MAC Address?
+     Well, it knows it has to go through the Default Gateway, but it doesn't know that Gateway's MAC.
+     Therefore, Host A knows it needs the to send an ARP Request, requesting the MAC of IP of Router 1.
+- Host A sends an ARP Request for 10.0.44.1
+- Once Router 1 receives the ARP Request from Host A, it will populate its own ARP Table for entry 10.0.44.9
+
+┌------------------------------------------------------┐
+|  Router 1 - Routing Table        | R1 - ARP Table    |
+|----------------------------------|-------------------|
+| DC: 10.0.55.x/24 - Left          | 10.0.44.9 --> a9a9| <-- Updated
+| DC: 10.0.44.x/24 - Right         |                   |
+| Static: 10.0.66.x/24 - 10.0.55.2 |                   |
+└------------------------------------------------------┘
+
+- Once Router 1 has updated its ARP Table, it'll send back a ARP Response including its ARP Mapping (IP/MAC)
+- Now, Host A is able to populate its own ARP Table with the ARP Mapping of Router 1
+
+┌--------------------┐
+| Host A - ARP Table |
+|--------------------|
+| 10.0.44.1 --> eee1 | <-- Updated
+|                    |
+|                    |
+└--------------------┘
+
+- Host A now has all the information needed to construct a Layer 2 Header
+- Host A sends packet to Router 1
+- Router 1 discards the Layer 2 Header.
+- Router 1 looks up the destination IP Address (of the packet) in its Routing Table
+   - Packet's next Hop is to 10.0.55.2
+- Now Router 1 needs to construct a new Layer 2 Header so it can send the packet to 10.0.55.2 (Router 2)
+- However, Router 1 doesn't have Router 2's MAC Address in it's ARP Table
+- Router 1 must send an ARP Request to find the MAC Address of 10.0.55.2
+- Router 1 sends an ARP Request
+- Router 2 receives Router 1's ARP Request and populates its own ARP Table with Router 1's IP/MAC Mapping
+
+┌------------------------------------------------------┐
+|  Router 2 - Routing Table        | R2 - ARP Table    |
+|----------------------------------|-------------------|
+| DC: 10.0.66.x/24 - Left          | 10.0.55.1 --> eee3| <-- Updated
+| DC: 10.0.55.x/24 - Right         |                   |
+| Static: 10.0.44.x/24 - 10.0.55.1 |                   |
+└------------------------------------------------------┘
+
+- Once Router 2 has populated its own ARP Table, it will send back an ARP Response
+- Router 1 receives Router 2's ARP Response and populates its own ARP Table with Router 2's IP/MAC Mapping
+
+┌------------------------------------------------------┐
+|  Router 1 - Routing Table        | R1 - ARP Table    |
+|----------------------------------|-------------------|
+| DC: 10.0.55.x/24 - Left          | 10.0.44.9 --> a9a9|
+| DC: 10.0.44.x/24 - Right         | 10.0.55.2 --> eee3| <-- Updated
+| Static: 10.0.66.x/24 - 10.0.55.2 |                   |
+└------------------------------------------------------┘
+
+- Router 1 is now able to create a Layer 2 Header and send the Packet to Router 2
+- Router 2 receives the packet and discards the Layer 2 Header
+- Router 2 checks the packet's destination IP Address in its Routing Table
+- Router 2 knows packet's destination network
+- Router 2 can't create Layer 2 Header to send packet to destination IP - it doesnt know MAC Address
+- Router 2 sends an ARP Request to 10.0.66.7
+- Host C receives Router 2's ARP Request and populates its ARP Table with R2's IP/MAC Mapping
+
+┌--------------------┐
+| Host C - ARP Table |
+|--------------------|
+| 10.0.66.2 --> eee4 | <-- Updated
+|                    |
+|                    |
+└--------------------┘
+
+- Host C has populated its ARP Table with Router 2's IP/MAC Mapping
+- Host C sends ARP Response back to Router 2
+- Router 2 receives ARP Response and updates its ARP Table with Host C's IP/MAC Mapping
+
+┌------------------------------------------------------┐
+|  Router 2 - Routing Table        | R2 - ARP Table    |
+|----------------------------------|-------------------|
+| DC: 10.0.66.x/24 - Left          | 10.0.55.1 --> eee3|
+| DC: 10.0.55.x/24 - Right         | 10.0.66.7 --> c7c7| <-- Updated
+| Static: 10.0.44.x/24 - 10.0.55.1 |                   |
+└------------------------------------------------------┘
+
+- Router 2 now has the MAC Address of Host C
+- Router 2 creates a Layer 2 Header for the packet and sends it to Host C
+- Host C discards the Layer 2 Header and the Layer 3 Header
+- Host C now has the Data
+
+
+Host C now wants to send data to Host A (10.0.44.9).
+
+- Host C creates a Layer 3 Header for the segment
+- Host C checks the IP Address to find it's first "Hop"
+- Host C notices Host A is in a different Network
+- Host C needs to send the data out its Default Gateway
+- Host C has the MAC Address of the Default Gateway in its ARP Table
+- Host C creates a Layer 2 Header, with the Default Gateway's MAC Address as the destination from the ARP Table
+- Host C sends the frame to Router 2
+- Router 2 receives Host C's frame
+- Router 2 discards the frame's Layer 2 Header
+- Router 2 compares the destination IP Address of the packet with its Routing Table
+- Router 2 finds where to send the packet via its Routing Table (Static: 10.0.44.x/24 - 10.0.55.1)
+- Router 2 creates a Layer 2 Header for the packet with Router 1's MAC Address as the destination
+- Router 2 sends the frame to Router 1
+- Router 1 receives Router 2's frame
+- Router 1 discards the Layer 2 Header of the frame
+- Router 1 compares the destination IP Address of the packet with its Routing Table
+- Router 1 finds where to send the packet via its Routing Table
+- Router 1 sees that the destination IP Address is in the network its connected to
+- Router 1 checks the ARP Table to find the MAC Address of the destination IP Address
+- Router 1 found the destination IP Address and its associated MAC Address
+- Router 1 creates a Layer 2 Header for the packet
+- Router 1 sends the frame to Host A
+- Host A discards the frame's Layer 2 Header
+- Host A discards the packet's Layer 3 Header
+- Host A has the data
+
+
+Keep in mind, events between Router 1 and Router 2 would repeat for any number of routers in the path
+
+- Each router looks up the destination IP Address in the Routing Table to determine the next "Hop"
+- Each router discards and creates Layer 2 Headers
+- Each router performs ARP as necessary
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
