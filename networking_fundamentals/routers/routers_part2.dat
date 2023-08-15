@@ -117,7 +117,7 @@ This means it can't create the Layer 2 Header for the Data.
 |  Router 1 - Routing Table        | R1 - ARP Table    |
 |----------------------------------|-------------------|
 | DC: 10.0.55.x/24 - Left          | 10.0.44.9 --> a9a9|
-| DC: 10.0.44.x/24 - Right         | 10.0.55.2 --> eee3| <-- Updated
+| DC: 10.0.44.x/24 - Right         | 10.0.55.2 --> eee2| <-- Updated
 | Static: 10.0.66.x/24 - 10.0.55.2 |                   |
 └------------------------------------------------------┘
 
@@ -189,3 +189,79 @@ Keep in mind, events between Router 1 and Router 2 would repeat for any number o
 - Each router looks up the destination IP Address in the Routing Table to determine the next "Hop"
 - Each router discards and creates Layer 2 Headers
 - Each router performs ARP as necessary
+
+
+====================== EXTRA EXAMPLE ======================
+
+Now Host B wants to send some data to Host C.
+
+- Host B knows Host C's IP Address
+- Host B creates a Layer 3 Header
+- Host B knows that Host C is in a different Network
+- Host B knows it must send the Data through its Default Gateway (10.0.55.1)
+- Host B doesn't know Router 1's MAC Address, so Host B must send an ARP Request
+- Host B sends ARP Request
+- Router 1 receives the ARP Request and populates its ARP Table with Host B's IP/MAC Mapping
+
+┌------------------------------------------------------┐
+|  Router 1 - Routing Table        | R1 - ARP Table    |
+|----------------------------------|-------------------|
+| DC: 10.0.55.x/24 - Left          | 10.0.44.9 --> a9a9|
+| DC: 10.0.44.x/24 - Right         | 10.0.55.2 --> eee2|
+| Static: 10.0.66.x/24 - 10.0.55.2 | 10.0.55.8 --> b8b8| <-- Updated
+└------------------------------------------------------┘
+
+- Router 1 has populated its ARP Table
+- Router 1 now sends back an ARP Response to Host B
+- Host B receives ARP Response
+- Host B populates its ARP Table with Router 1's IP/MAC Mapping
+
+┌--------------------┐
+| Host B - ARP Table |
+|--------------------|
+| 10.0.55.1 --> eee3 | <-- Updated
+|                    |
+|                    |
+└--------------------┘
+
+- Host B has populated its ARP Table
+- Host B now creates a Layer 2 Header for the packet
+- Host B sends the frame to Router 1 (which is a "Hop")
+- Router 1 receives the frame and discards the Layer 2 Header
+- Router 1 checks the destination IP Address of the packet
+- Router 1 realizes the destination IP Address is outside its network
+- Router 1 checks its Routing Table
+- Router 1 realizes it needs to send the packet to Router 2
+- Router 1 checks the ARP Table to find the MAC Address for Router 2 (10.0.55.2 --> eee2)
+- Router 1 creates a Layer 2 Header for the packet
+- Router 1 sends the frame to Router 2
+- Router 2 receives the frame
+- Router 2 discards the Layer 2 Header
+- Router 2 looks at the IP Address of the packet
+- Router 2 realizes that it's connected to the destination Network
+- Router 2 checks its ARP Table to find the MAC Address of the destination IP Address
+- Router 2 finds the MAC Address
+- Router 2 creates a Layer 2 Header
+- Router 2 sends the frame to Host C
+- Host C receives the frame
+- Host C discards Layer 2 Header
+- Host C discards Layer 3 Header
+- Host C now has the data
+
+
+========= FINAL THOUGHTS =========
+
+The routers are using static routing, meaning that the path between Host B and Host C is predetermined.
+If there's a network failure along that path or if a more optimal path becomes available,
+the static route won't adapt automatically.
+
+
+If the network grows and becomes more complex,
+maintaining static routes and manual configurations can lead to human errors.
+This can result in suboptimal routing or even routing loops.
+
+
+While the described process is a valid way for the packet to travel,
+it may not be the most efficient, particularly in larger or more complex networks.
+Utilizing dynamic routing protocols, optimizing ARP processes,
+and considering load balancing and redundancy could lead to a more efficient network design.
