@@ -13,6 +13,7 @@
 - **[Routers](networking_fundamentals/routers)**
   - **[Routers Part 1](networking_fundamentals/routers/routers_part1.dat)**
   - **[Routers Part 2](networking_fundamentals/routers/routers_part2.dat)**
+  - **[Routers Part 3](networking_fundamentals/routers/routers_part3.dat)**
 - **Networking Protocols**
 - **How Data Moves**
 

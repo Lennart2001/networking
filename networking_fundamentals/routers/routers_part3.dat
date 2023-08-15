@@ -1,0 +1,291 @@
+====================== Routers Part 2 ======================  https://youtu.be/zmxLg4jV0ts
+
+
+Routers are typically deployed in a hierarchy
+
+- A hierarchical structure allows for easier scaling
+- A hierarchical structure allows for more reliable connectivity
+
+                            \|/
+                        [ Router 1 ]____________________
+                     _____/  |  \  \__________          \_________
+                 ___/        |   \________    \________           \________
+             ___/            |            \___         \_____              \_____
+         ___/                |                \___           \__________         \__________
+        /                    |                    \                     \                   \
+   [ Router 2 ]         [ Router 3 ]        [ Router 4 ]     ||    [ Router 5 ]        [ Router 6 ]
+        |                    |                   |           ||         |                   |
+┌--10.0.44.x /24--┐  ┌--10.0.55.x /24--┐ ┌--10.0.66.x /24--┐ || ┌--10.0.77.x /24--┐ ┌--10.0.88.x /24--┐
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+└-----------------┘  └-----------------┘ └-----------------┘ || └-----------------┘ └-----------------┘
+       [OLD]                [OLD]               [OLD]        ||        [NEW]               [NEW]
+
+- We are able to add more networks to Router 1, because of our hierarchical structure
+- We can simply *scale* by adding more connections to Router 1
+   - Obviously, this doesn't continue on infinitely
+
+A counter example is a sequential/linear structure.
+
+       \|/
+   [ Router 1 ]
+        |
+        |
+        |
+        |
+   [ Router 2 ]---------[ Router 3 ]--------[ Router 4 ]-----------[ Router 5 ]--------[ Router 6 ]
+        |                    |                   |           ||         |                   |
+┌--10.0.44.x /24--┐  ┌--10.0.55.x /24--┐ ┌--10.0.66.x /24--┐ || ┌--10.0.77.x /24--┐ ┌--10.0.88.x /24--┐
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+|                 |  |                 | |                 | || |                 | |                 |
+└-----------------┘  └-----------------┘ └-----------------┘ || └-----------------┘ └-----------------┘
+       [OLD]                [OLD]               [OLD]        ||        [NEW]               [NEW]
+
+In the first figure, all the hosts are just two "Hops" away from Router 1.
+However, in the second figure Hosts in network 10.0.88.x/24 are 6 hops away from Router 1.
+   - Additionally, if any of the routers between Router 6 and Route 1 break, communication stops
+     between Router 6 and Router 1.
+
+
+- The ideas presented in Routers part 2 (routers_part2.dat) apply to the above shown topology as well.
+
+┌--10.20.11.x /24-┐  ┌--10.20.22.x /24-┐ ┌--10.20.33.x /24-┐
+| Host A          |  |                 | |                 |
+| .8 / a1a1       |  |                 | |                 |
+└-----------------┘  └-----------------┘ └-----------------┘
+       *| .1                 |                    |
+   [ Router 8 ]         [ Router 9 ]         [ Router 10 ]
+       *\___                 |                 ___/
+           *\___             |             ___/
+               *\___         |         ___/
+                   *\__*__   |   _____/
+                         *\  |  /
+                        [ Router 7 ]
+                            *|
+                            *|
+                            *|
+                            *|
+                        [ Router 1 ]___*___*____*___*___
+                     _____/  |  \  \__________         *\___*_____
+                 ___/        |   \________    \________          *\__*___
+             ___/            |            \___         \_____           *\__*__
+         ___/                |                \___           \________        *\___*____
+        /                    |                    \                   \                *\
+   [ Router 2 ]         [ Router 3 ]        [ Router 4 ]        [ Router 5 ]        [ Router 6 ]
+        |                    |                   |                   |                  *|
+┌--10.40.11.x /24-┐  ┌--10.40.22.x /24-┐ ┌--10.40.33.x /24-┐ ┌--10.40.44.x /24-┐ ┌--10.40.55.x /24-┐
+|                 |  |                 | |                 | |                 | | Host D          |
+|                 |  |                 | |                 | |                 | | .22 / d5d5      |
+└-----------------┘  └-----------------┘ └-----------------┘ └-----------------┘ └-----------------┘
+
+        __ Hop __          __ Hop __          __ Hop __          __ Hop __          __ Hop __
+      _/         \_      _/         \_      _/         \_      _/         \_      _/         \_
+     /             \    /             \    /             \    /             \    /             \
+[Host A]---------[Router 8]---------[Router 7]---------[Router 1]---------[Router 6]---------[Host D]
+
+
+As you can see, the topology doesnt change. The path is almost fluid.
+We have no idea what the actual physical structure looks like.
+It could be that we are building circles around Router 1, or that Host A is 5 inches away from Host D.
+It doesn't matter. When we draw out the path, this is what it looks like.
+
+
+- The hierarchical structure of routers also allows for Route Summarization
+
+The complete routing table for Router 1 would look something like this:
+
+    Without Summarization                  With Summarization
+┌----------------------------┐      ┌----------------------------┐
+|  Router 1 - Routing Table  |      |  Router 1 - Routing Table  |
+|----------------------------|      |----------------------------|
+| 10.40.11.0 /24 -->  R2     |      | 10.40.11.0 /24 -->  R2     |
+| 10.40.22.0 /24 -->  R3     |      | 10.40.22.0 /24 -->  R3     |
+| 10.40.33.0 /24 -->  R4     |      | 10.40.33.0 /24 -->  R4     |
+| 10.40.44.0 /24 -->  R5     |      | 10.40.44.0 /24 -->  R5     |
+| 10.40.55.0 /24 -->  R6     |      | 10.40.55.0 /24 -->  R6     |
+| 10.20.11.0 /24 -->  R7     |      | 10.40.0.0 /16  -->  R7     |
+| 10.20.22.0 /24 -->  R7     |      └----------------------------┘
+| 10.20.33.0 /24 -->  R7     |
+└----------------------------┘
+
+Notice a difference?
+The /24 changed to /16.
+
+Subnetting Idea:
+[##.##.##].## /24 - Look at first three octets
+[##.##].##.## /16 - Look at first two octets
+
+The /24 stands for 3 octets and the /16 for two octets.
+  - This means that the router will look at either the first three octets to find a match or the first two
+  - This allows us to summarize the addresses and save space in the routing table
+  - Not only save space, but also make this more efficient.
+  - Imagine that Router 7 is connected to 100+ more networks
+    - Worst case scenario: We have to check the 100+ addresses to send the data
+    - Average: We have to check 100+/2 addresses to send the data
+  - With Summarization, regardless of how many networks there are at 10.40.x.x,
+    we only have one entry in the routing table: 10.40.0.0 /16
+- Route Summarization reduces the number of Routes in the Routing Table
+
+Consider Router 6:
+
+    Without Summarization                  With Summarization      
+┌----------------------------┐      ┌----------------------------┐ 
+|  Router 6 - Routing Table  |      |  Router 6 - Routing Table  |
+|----------------------------|      |----------------------------| 
+| 10.40.11.0 /24 -->  R1     |      | 10.40.55.0 /24 --> DirConn |
+| 10.40.22.0 /24 -->  R1     |      | 10.0.0.0 /8    -->  R1     |  <-- Checks only one octet
+| 10.40.33.0 /24 -->  R1     |      └----------------------------┘
+| 10.40.44.0 /24 -->  R1     |
+| 10.40.55.0 /24 --> DirConn |      
+| 10.20.11.0 /24 -->  R1     |
+| 10.20.22.0 /24 -->  R1     |
+| 10.20.33.0 /24 -->  R1     |
+└----------------------------┘                                     
+
+In our current topology, every single path (except one) from Router 6 goes through Router 1.
+   - This means it is topology-wise at the edge of the network.
+   - It only communicates to its own network and one other router.
+
+Now, imagine a scenario where Router 6 receives a packet that looks like this:
+
+                                ┌----------------------------┐
+┌--------------------┐          |  Router 6 - Routing Table  |
+| SRC: xx.xx.xx.xx   |          |----------------------------|
+| DES: 10.40.55.x    | -------> | 10.40.55.0 /24 --> DirConn |
+|                    |          | 10.0.0.0 /8    -->  R1     |
+└--------------------┘          └----------------------------┘
+
+How will the Router decide where to send the Packet?
+
+- The routing table has two entries: 10.40.55.0/24 and 10.0.0.0/8.
+- Since the destination IP address is in the 10.40.55.x range, both entries match.
+- The Router will decide on where to send the packet based on the subnetting mask.
+  - In IP routing, the router looks for the most specific match, i.e.,
+    the route with the longest subnet mask that matches the destination IP address.
+    This is known as the LONGEST PREFIX MATCH RULE.
+- The 10.40.55.0/24 entry is more specific (has a longer subnet mask)
+  than the 10.0.0.0/8 entry, so Router 6 will choose this route.
+
+When a router receives a packet, it looks at the destination IP address
+and then searches its routing table to find all the routes that match the destination.
+Out of those matching routes, the router selects the one with the longest
+subnet mask (i.e., the most specific match) as the path for forwarding the packet.
+
+- Router receives packet
+- Router reads destination IP Address
+- Router checks routing table to find matching routes
+- Out of those matching routes, Router chooses route with longest subnet mask
+  - This is the most specific match
+- Router sends packet to route to matching route with longest subnet mask
+
+
+The hierarchical structure of routers also allows for a Default Route
+
+
+┌--10.20.11.x /24-┐  ┌--10.20.22.x /24-┐ ┌--10.20.33.x /24-┐
+└-----------------┘  └-----------------┘ └-----------------┘
+        | .1                 |                    |
+   [ Router 8 ]         [ Router 9 ]         [ Router 10 ]
+        \___                 |                 ___/
+            \___             |             ___/
+                \___         |         ___/
+                    \_____   |   _____/
+                          \  |  /               __________
+                        [ Router 7 ]           [          ] /
+                             |    _____________| Internet |{--
+                             |   /             [__________] \
+                             |  /
+                        [ Router 1 ]_______________________
+                     _____/  |  \  \__________             \________
+                 ___/        |   \________    \________             \_____
+             ___/            |            \___         \_____             \____
+         ___/                |                \___           \________         \_______
+        /                    |                    \                   \                \
+   [ Router 2 ]         [ Router 3 ]        [ Router 4 ]        [ Router 5 ]        [ Router 6 ]
+        |                    |                   |                   |                   |
+┌--10.40.11.x /24-┐  ┌--10.40.22.x /24-┐ ┌--10.40.33.x /24-┐ ┌--10.40.44.x /24-┐ ┌--10.40.55.x /24-┐
+└-----------------┘  └-----------------┘ └-----------------┘ └-----------------┘ └-----------------┘
+
+If Router 1 is also responsible for providing Router 6 with internet Access,
+we can actually change the Routing Table to have a Default Route
+   - This Default Route is the Ultimate route summary
+      - 0.0.0.0/0 Every single IPv4 Address matches with this
+      - Because of the longest prefix match rule 0.0.0.0/8 essentially means:
+      - If you can't find the IP Address, go here!
+
+       With Summarization
+┌----------------------------┐
+|  Router 6 - Routing Table  |
+|----------------------------|
+| 10.40.55.0 /24 --> DirConn |
+| 0.0.0.0 /0     -->  R1     |  <-- Default Route
+└----------------------------┘
+
+If the Routing Table does not contain the destination address of a packet,
+it will send the packet in the direction of the internet.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
