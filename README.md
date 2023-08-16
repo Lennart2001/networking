@@ -14,7 +14,7 @@
   - **[Routers Part 1](networking_fundamentals/routers/routers_part1.dat)**
   - **[Routers Part 2](networking_fundamentals/routers/routers_part2.dat)**
   - **[Routers Part 3](networking_fundamentals/routers/routers_part3.dat)**
-- **Networking Protocols**
+- **[Networking Protocols](networking_fundamentals/protocols_overview.dat)**
 - **How Data Moves**
 
 ## VLANs (Virtual Local Area Network)
@@ -30,6 +30,8 @@
 #### Link Layer:
 - **ARP**: Address Resolution Protocol
 - **RARP**: Reverse Address Resolution Protocol
+- **LLDP**: Link Layer Discovery Protocol
+- **NDP**: Neighbor Discovery Protocol
 
 #### Network Layer:
 - **IP**: Internet Protocol
@@ -37,11 +39,16 @@
   - **IPv6**: Internet Protocol version 6
 - **ICMP**: Internet Control Message Protocol
 - **IGMP**: Internet Group Management Protocol
+- **RIPng**: Routing Information Protocol next generation (for IPv6)
+- **OSPFv3**: OSPF for IPv6
+
 
 #### Transport Layer:
 - **TCP**: Transmission Control Protocol
 - **UDP**: User Datagram Protocol
 - **SCTP**: Stream Control Transmission Protocol
+- **DCCP**: Datagram Congestion Control Protocol
+- **RUDP**: Reliable User Datagram Protocol
 
 #### Application Layer:
 - **HTTP**: Hypertext Transfer Protocol
@@ -63,25 +70,48 @@
 - **EIGRP**: Enhanced Interior Gateway Routing Protocol
 - **LDAP**: Lightweight Directory Access Protocol
 - **XMPP**: Extensible Messaging and Presence Protocol
+- **MQTT**: Message Queuing Telemetry Transport
+- **SOAP**: Simple Object Access Protocol
+- **RDP**: Remote Desktop Protocol
+- **VNC**: Virtual Network Computing
+- **TFTP**: Trivial File Transfer Protocol
+- **NetFlow**: Network Flow Monitoring Protocol
+- **IS-IS**: Intermediate System to Intermediate System
+- **TACACS+**: Terminal Access Controller Access-Control System Plus
+- **Kerberos**: Network Authentication Protocol
+
 
 ### Wireless Protocols:
+- **WPA**: Wi-Fi Protected Access 1
 - **WPA2**: Wi-Fi Protected Access 2
 - **WPA3**: Wi-Fi Protected Access 3
 - **Bluetooth**: Not an acronym
 - **Zigbee**: Not an acronym
+- **LoRaWAN**: Long Range Wide Area Network
+- **NFC**: Near Field Communication
+- **WiMAX**: Worldwide Interoperability for Microwave Access
+
 
 ### Voice and Video Protocols:
 - **SIP**: Session Initiation Protocol
 - **RTP**: Real-time Transport Protocol
 - **RTCP**: Real-time Transport Control Protocol
+- **H.323**: Multimedia Communication Protocol
+- **SDP**: Session Description Protocol
+- **MGCP**: Media Gateway Control Protocol
 
 ### Security Protocols:
 - **SSL**: Secure Sockets Layer
 - **TLS**: Transport Layer Security
 - **IPsec**: Internet Protocol Security
+- **SRTP**: Secure Real-Time Transport Protocol
+- **PPTP**: Point-to-Point Tunneling Protocol
+- **L2TP**: Layer 2 Tunneling Protocol
 
 ### Industrial Protocols:
 - **Modbus**: Not an acronym
+- **PROFIBUS**: Process Field Bus
+- **EtherNet/IP**: Ethernet Industrial Protocol
 
 ### Other Specialized Protocols:
 - **RADIUS**: Remote Authentication Dial-In User Service
@@ -90,11 +120,19 @@
 - **NNTP**: Network News Transfer Protocol
 - **IRC**: Internet Relay Chat
 - **UPnP**: Universal Plug and Play
+- **AFP**: Apple Filing Protocol
+- **iSCSI**: Internet Small Computer Systems Interface
+- **ICAP**: Internet Content Adaptation Protocol
+- **WebDAV**: Web Distributed Authoring and Versioning
+
 
 ### Deprecated or Replaced Protocols:
 - **IPX**: Internetwork Packet Exchange
 - **SPX**: Sequenced Packet Exchange
 - **NetBEUI**: NetBIOS Extended User Interface
+- **WEP**: Wired Equivalent Privacy (for Wi-Fi)
+- **SLIP**: Serial Line Internet Protocol
+- **ATM**: Asynchronous Transfer Mode
 
 ## Network Address Translation (NAT)
 

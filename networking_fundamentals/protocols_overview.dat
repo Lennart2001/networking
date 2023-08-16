@@ -1,0 +1,71 @@
+============================ Common Protocols Overview ============================
+
+What is a protocol?
+
+- A protocol is a set of rules that form an internet standard
+
+
+- ARP - Address Resolution Protocol (RFC 826)
+  - Resolves IP to MAC mappings
+    - ARP Requests / ARP Responses
+
+┌-------------------------------------------------------------------------┐
+| RFC 826:                                                                |
+|                An Ethernet Address Resolution Protocol                  |
+|                                                                         |
+|                               Abstract                                  |
+|                                                                         |
+|     ...                                                                 |
+|     Presented here is a protocol that allows dynamic                    |
+|     distribution of the information needed to build tables to           |
+|     translate an address A in protocol P's address space into a         |
+|     48.bit Ethernet address.                                            |
+└-------------------------------------------------------------------------┘
+
+                  ARP Request
+                ┌-----------------┐
+                | I am looking for|
+                | 10.40.11.9 .    |
+                | I am 10.40.11.7 |
+                | / a1a1 .        |
+                └-----------------┘
+┌--10.40.11.7 /24-┐   |                ┌--10.40.11.9 /24-┐
+| MAC: a1a1       |-->-->-->-->-->-->--| MAC:  b2b2      |
+|                 |--<--<--<--<--<--<--|                 |
+└-----------------┘               |    └-----------------┘
+                         ┌-----------------┐
+                         | I am 10.40.11.9 |
+                         | My MAC is b2b2. |
+                         └-----------------┘
+                            ARP Response
+
+
+- FTP - File Transfer Protocol
+- SMTP - Simple Mail Transfer Protocol
+- HTTP - Hyper Text Transfer Protocol
+- SSL - Secure Sockets Layer
+- TLS - Transport Layer Security
+- HTTPS - HTTP Secured with SSL/TLS
+- DNS - Domain Name System
+  - Converts www.google.com to an IP Address
+  - DNS Servers are big "look-up" table
+- DHCP Server provides IP / Subnet Mask / Default Gateway / DNS for Clients
+┌--------------------------------------------------------------┐
+|   Every host needs FOUR items for Internet Connectivity      |
+|   • IP Address        - Host's Identit on the Internet       |
+|   • Subnet mask       - Size of Host's network               |
+|   • Default Gateway   - Router's IP Address                  |
+|   • DNS Server IP(s)  - Translate domain names to IPs        |
+|                                                              |
+|   Dynamic Host Configuration Protocol (DHCP) is responsible  |
+|   for providing these to the host.                           |
+└--------------------------------------------------------------┘
+
+
+
+
+
+
+
+
+
