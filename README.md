@@ -21,6 +21,8 @@
 
 ## Subnetting
 
+## Network Address Translation (NAT)
+
 ## TCP & UDP Mastery
 
 ## Total Protocol Overview
@@ -133,8 +135,6 @@
 - **WEP**: Wired Equivalent Privacy (for Wi-Fi)
 - **SLIP**: Serial Line Internet Protocol
 - **ATM**: Asynchronous Transfer Mode
-
-## Network Address Translation (NAT)
 
 ## Access Control Lists (ACLs)
 
