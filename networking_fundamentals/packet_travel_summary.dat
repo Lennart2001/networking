@@ -1,0 +1,234 @@
+======================== Packet Travel ========================
+
+This is a summary of the previous chapters.
+
+Using everything we written we will discuss how data flows through a Network.
+
+
+- Data moves through networks based upon THREE tables:
+
+MAC Address Table   <--- Mapping of Switchport to MAC Address
+  - Layer 2 (Hop to Hop)
+ARP Table / Cache   <--- Mapping of IP Address to MAC Address
+  - Discovering MAC based on IP
+Routing Table       <--- Mapping of IP Network to Interface or Next Router
+  - Layer 3 (End to End)
+
+============================= EXERCISE - HOST A -> HOST B =============================
+
+We will go through each step of the "packet travel" process and update the tables as need.
+
+This is the initial state:
+
+┌------------------------------------------------------┐   ┌------------------------------------------------------┐
+|  Router 1 - Routing Table        | R1 - ARP Table    |   |  Host A - Routing Table          | HA - ARP Table    |
+|----------------------------------|-------------------|   |----------------------------------|-------------------|
+|                                  |                   |   |                                  |                   |
+|                                  |                   |   |                                  |                   |
+|                                  |                   |   |                                  |                   |
+└------------------------------------------------------┘   └------------------------------------------------------┘
+┌------------------------------------------------------┐   ┌------------------------------------------------------┐
+|  Router 2 - Routing Table        | R2 - ARP Table    |   |  Host B - Routing Table          | HB - ARP Table    |
+|----------------------------------|-------------------|   |----------------------------------|-------------------|
+|                                  |                   |   |                                  |                   |
+|                                  |                   |   |                                  |                   |
+|                                  |                   |   |                                  |                   |
+└------------------------------------------------------┘   └------------------------------------------------------┘
+┌------------------------------------------------------┐   ┌------------------------------------------------------┐
+|  Router 3 - Routing Table        | R3 - ARP Table    |   |  Host C - Routing Table          | HC - ARP Table    |
+|----------------------------------|-------------------|   |----------------------------------|-------------------|
+|                                  |                   |   |                                  |                   |
+|                                  |                   |   |                                  |                   |
+|                                  |                   |   |                                  |                   |
+└------------------------------------------------------┘   └------------------------------------------------------┘
+┌--------------------------┐
+|          Switch          |
+|--------------------------|                                                      ┌----22.7.7.0/24---------------┐
+|                          |                                                 _____|____              ________    |
+|                          |                                                [          ]eee2        [ Host B ]   |
+|                          |                                                | Router 2 |------------| b2b2   |   |
+└--------------------------┘                                               /[__________].1          | .22    |   |
+┌----11.8.8.0/24------------------------------┐                           /       |                 [________]   |
+|   ________            ________            __|_______       __________  /        └------------------------------┘
+|  [ Host A ]       ___[        ]___   eee1[          ]     {          }/   
+|  | a1a1   |------| 4 | Switch | 5 |------| Router 1 |----{  Internet  }
+|  | .11    |       ¯¯¯[________]¯¯¯    .1 [__________]     {__________}\
+|  [________]                                 |                          \        ┌----33.6.6.0/24---------------┐
+└---------------------------------------------┘                           \  _____|____              ________    |
+                                                                           \[          ]eee3        [ Host C ]   |
+                                                                            | Router 3 |------------| c3c3   |   |
+                                                                            [__________].1          | .33    |   |
+                                                                                  |                 [________]   |
+                                                                                  └------------------------------┘
+
+- Routers will discard any packets they receive, where they don't know the destination IP Address
+- Therefore, we must "initialize" the routing tables for the Routers
+- Additionally, Hosts also have a Default Gateway
+- We will save the Default Gateway in the "Routing Table" of the Host
+
+┌------------------------------------------------------┐   ┌------------------------------------------------------┐
+|  Router 1 - Routing Table        | R1 - ARP Table    |   |  Host A - Routing Table          | HA - ARP Table    |
+|----------------------------------|-------------------|   |----------------------------------|-------------------|
+|  11.8.8.0 /24  - Directly Conn   |                   |   |  0.0.0.0 /0 - 11.8.8.1           |                   |
+|  0.0.0.0 /0    - Internet        |                   |   └------------------------------------------------------┘
+└------------------------------------------------------┘   ┌------------------------------------------------------┐
+┌------------------------------------------------------┐   |  Host B - Routing Table          | HB - ARP Table    |
+|  Router 2 - Routing Table        | R2 - ARP Table    |   |----------------------------------|-------------------|
+|----------------------------------|-------------------|   |  0.0.0.0 /0 - 22.7.7.1           |                   |
+|  22.7.7.0 /24  - Directly Conn   |                   |   └------------------------------------------------------┘
+|  0.0.0.0 /0    - Internet        |                   |   ┌------------------------------------------------------┐
+└------------------------------------------------------┘   |  Host C - Routing Table          | HC - ARP Table    |
+┌------------------------------------------------------┐   |----------------------------------|-------------------|
+|  Router 3 - Routing Table        | R3 - ARP Table    |   |  0.0.0.0 /0 - 33.6.6.1           |                   |
+|----------------------------------|-------------------|   └------------------------------------------------------┘
+|  33.6.6.0 /24  - Directly Conn   |                   |
+|  0.0.0.0 /0    - Internet        |                   |
+└------------------------------------------------------┘
+
+- The Routers now have their Routing Tables properly populated
+- The Hosts also have their Default Gateway set as well
+
+Host A wants to send Host B some data.
+
+- Host A constructs a Layer 3 Header for the segment
+- Based on the IP Address, Host A knows it needs to send the data through the Default Gateway
+- Host A now tries to create a Layer 2 Header for the packet
+- Host A doesn't know the MAC Address of the Default Gateway
+- Host A must send an ARP Request to find the MAC Address
+- Host A sends an ARP Request, with ffff.ffff.ffff as the destination (broadcast)
+- The ARP Request goes through the Switch
+- The Switch sees it received a new packet but doesn't have the source MAC Address in its Table
+- The Switch updates its MAC Address table and adds 4 --> a1a1
+
+┌--------------------------┐
+|          Switch          |
+|--------------------------|
+|       4  -->  a1a1       |  <-- Updated
+└--------------------------┘
+
+- The Switch added 4 --> a1a1
+- The Switch sees the destination MAC Address of ARP Request and knows its Broadcast
+- The Switch sends the ARP Request as a broadcast (out of every port, except receiving port)
+- Router 1 receives the ARP Request
+- Router 1 discards the layer 2 header
+- Router 1 reads the ARP Request and populates its ARP Table with the source IP/MAC Mapping
+
+┌------------------------------------------------------┐
+|  Router 1 - Routing Table        | R1 - ARP Table    |
+|----------------------------------|-------------------|
+|  11.8.8.0 /24  - Directly Conn   | 22.8.8.11 --> a1a1|
+|  0.0.0.0 /0    - Internet        |                   |
+└------------------------------------------------------┘
+
+- Router 1 populated its Routing Table
+- Router 1 now sends an ARP Response back
+- Router 1 creates a Layer 2 header for the ARP Response
+- Router 1 sends a ARP Response unicast
+- Switch receives Router 1's ARP Response
+- Switch reads the source MAC Address of the ARP Response
+- Switch populates its MAC Address table with the source Port / MAC Address Mapping
+
+┌--------------------------┐
+|          Switch          |
+|--------------------------|
+|       4  -->  a1a1       |
+|       5  -->  eee1       |  <-- Updated
+└--------------------------┘
+
+- Switch populated the MAC Address table
+- Switch reads the destination MAC Address and finds a match in its port/MAC table
+- Switch sends the ARP Response out of Port 4 to a1a1
+- Host A receives the ARP Response
+- Host A discards the layer 2 header of ARP Response
+- Host A reads the ARP Response
+- Host A populates its ARP Table with Router 1's IP/MAC Address
+
+┌------------------------------------------------------┐
+|  Host A - Routing Table          | HA - ARP Table    |
+|----------------------------------|-------------------|
+|  0.0.0.0 /0 - 11.8.8.1           | 11.8.8.1 --> eee1 |
+└------------------------------------------------------┘
+
+- Host A populated the ARP Table with Router 1's IP/MAC Address Mapping
+- Host A now creates the appropriate Layer 2 Header for the packet
+- Host A sends the frame to the Switch
+- The Switch now reads the layer 2 header's destination MAC Address
+- The Switch sends the frame to Router 1
+- Router 1 discards the layer 2 header
+- Router 1 reads the layer 3
+- Router 1 compares the destination IP with its Routing table
+- Router 1 creates a layer 2 header for the packet
+- Router 1 sends the frame into the internet
+- The internet (just a bunch of routers) spits out a frame to Router 2
+- Router 2 discards layer 2 header
+- Router 2 reads destination IP Address of packet
+- Router 2 checks its routing table
+- Router 2 sees that the packet belongs to the directly connected network
+- Router 2 tries to create a layer 2 header for the packet, but fails
+- Router 2 doesn't know the MAC Address of the destination IP Address
+- Router 2 sends an ARP Request to the network
+- Host B receives the ARP Request and discards the layer 2 header
+- Host B reads the source IP Address and Source MAC Address
+- Host B populates its ARP Table with IP/MAC Mapping
+
+┌------------------------------------------------------┐
+|  Host B - Routing Table          | HB - ARP Table    |
+|----------------------------------|-------------------|
+|  0.0.0.0 /0 - 22.7.7.1           | 22.7.7.1 --> eee2 |
+└------------------------------------------------------┘
+
+- Host B has populated its ARP Table with the IP/MAC Address
+- Host B now sends an ARP Response back
+- Host B creates a layer 2 header for the ARP Response
+- Host B now sends the ARP Response to Router 2
+- Router 2 receives the ARP Response
+- Router 2 discards the layer 2 header
+- Router 2 reads the ARP Response
+- Router 2 populates its ARP Table with the IP/MAC Mapping
+
+┌------------------------------------------------------┐
+|  Router 2 - Routing Table        | R2 - ARP Table    |
+|----------------------------------|-------------------|
+|  22.7.7.0 /24  - Directly Conn   | 22.7.7.22 --> b2b2|
+|  0.0.0.0 /0    - Internet        |                   |
+└------------------------------------------------------┘
+
+- Router 2 has populated its ARP Table
+- Router 2 now creates a layer 2 header for the packet
+- Router 2 sends the frame to Host B
+- Host B receives the frame
+- Host B discards layer 2 and layer 3 header
+- Host B is able to read the data
+
+
+============================= EXERCISE - HOST B -> HOST A =============================
+
+We will keep the ARP Table content and Routing Table content like they were at the end of the last exercise.
+
+This will be the response of Host B to Host A
+
+
+- Host B has some data and wants to send the data to Host A
+- Host B constructs a layer 3 header, Host A IP is known
+- Host B constructs a layer 2 header, Router 2's IP is known from ARP Table
+- Host B sends the frame to Router 2
+- Router 2 discards the layer 2 header
+- Router 2 reads the destination IP Address
+- Router 2 knows to send the packet through the internet
+- Router 2 creates a layer 2 header based on the next Router's MAC
+- Router 2 sends the frame through the internet
+- The frame will ultimately end up at Router 1
+- Router 1 will discard the layer 2 header
+- Router 1 will read the destination IP Address
+- Router 1 will know to send the package into the directly connected network
+- Router 1 checks to see if it knows the destination's IP Address' MAC Address
+- Router 1 does
+- Router 1 creates a layer 2 header
+- Router 1 sends the packet to the switch
+- The switch checks its port/MAC table
+- It sees that the destination address of layer 2 header is connected to port 4
+- The switch sends the frame out of port 4
+- Host A receives the frame
+- Host A discards layer 2 header
+- Host A discards layer 3 header
+- Host A has the data now

@@ -15,7 +15,7 @@
   - **[Routers Part 2](networking_fundamentals/routers/routers_part2.dat)**
   - **[Routers Part 3](networking_fundamentals/routers/routers_part3.dat)**
 - **[Networking Protocols](networking_fundamentals/protocols_overview.dat)**
-- **How Data Moves**
+- **[How Data Moves Summary](networking_fundamentals/packet_travel_summary.dat)**
 
 ## VLANs (Virtual Local Area Network)
 
