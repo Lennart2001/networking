@@ -15,10 +15,21 @@
   - **[Routers Part 1](networking_fundamentals/routers/routers_part1.dat)**
   - **[Routers Part 2](networking_fundamentals/routers/routers_part2.dat)**
   - **[Routers Part 3](networking_fundamentals/routers/routers_part3.dat)**
+  - **Route Precedence**
 - **[Networking Protocols](networking_fundamentals/protocols_overview.dat)**
 - **[How Data Moves Summary](networking_fundamentals/packet_travel_summary.dat)**
+- **Local Broadcast vs Directed Broadcast**
 
 ## Subnetting
+
+- **Subnetting Part 1**
+- **Subnetting Part 2**
+- **Subnetting Part 3**
+- **Subnetting Part 4**
+- **Subnetting Part 5**
+- **Subnetting Part 6**
+- **Subnetting Part 7**
+
 
 ## Network Address Translation (NAT)
 
