@@ -163,4 +163,3 @@ Trunk ports are where the trunk link connects into the switch.
 IEEE 802.1Q Protocol is the open standard for how to tag Layer 2 frames
 
 Native VLAN is the one VLAN that's allowed to traverse trunk link without a VLAN tag
-
