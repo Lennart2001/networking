@@ -1,0 +1,166 @@
+========================== VLANs ==========================
+
+VLANs (Virtual Local Area Network) operate within switches.
+
+VLANs behave exactly like switches.
+   - VLANs are logical switches within physical Switches
+   - This means, a single switch can be split into multiple Virtual Switches (or VLANs)
+
+               Switch
+┌-----------------|-----------------┐
+|  ┌--┐ ┌--┐ ┌--┐ | ┌--┐ ┌--┐ ┌--┐  |
+|  |  | |  | |  | | |  | |  | |  |  |
+|  └--┘ └--┘ └--┘ | └--┘ └--┘ └--┘  |
+└-----------------|-----------------┘
+     [VLAN 1]           [VLAN 2]
+
+The physical switch has 6 ethernet ports, however it is now configured to host 2 VLANs
+   - Ports 1-3 are VLAN 1
+   - Ports 4-6 are VLAN 2
+However, the two VLANs are unable to communicate with one another.
+   - They are considered two different networks.
+   - A way for them to communicate would be through a router
+
+           ┌-------------┐
+           |    Router   |
+           └-------------┘
+              |       |
+┌-------------|---|---|-------------┐
+|  ┌--┐ ┌--┐ ┌--┐ | ┌--┐ ┌--┐ ┌--┐  |
+|  |  | |  | |  | | |  | |  | |  |  |
+|  └--┘ └--┘ └--┘ | └--┘ └--┘ └--┘  |
+└-----------------|-----------------┘
+     [VLAN 1]           [VLAN 2]
+
+Now, VLAN 1 and VLAN 2 are able to communicate with one another through the help of a router.
+
+           ┌-------------┐ ┌-------------┐
+           |   Router 1  | |   Router 2  |
+           └-------------┘ └-------------┘
+                |       |   |       |
+                |       |   |       |
+        ┌-------|---|---|---|---|---|-------┐
+        |           |  Switch 1 |           |
+       /| ┌--┐ ┌--┐ | ┌--┐ ┌--┐ | ┌--┐ ┌--┐ |\
+      / | |  | |  | | |  | |  | | |  | |  | | \
+     /  | └--┘ └--┘ | └--┘ └--┘ | └--┘ └--┘ |  \
+    /   └----||-----|-----------|----||-----┘   \
+[VLAN 1]     ||        [VLAN 2]      ||       [VLAN 3]
+    \        ||                      ||         /
+     \  ┌----||-----------|----------||-----┐  /
+      \ |  ┌--┐ ┌--┐ ┌--┐ | ┌--┐ ┌--┐ ┌--┐  | /
+       \|  |  | |  | |  | | |  | |  | |  |  |/
+        |  └--┘ └--┘ └--┘ | └--┘ └--┘ └--┘  |
+        └-----------------|-----------------┘
+                       Switch 2
+
+The above shown diagram depicts how it is possible to extend Virtual Switches to other Physical Switches.
+   - Switch 1+2 both share VLAN 1+3, however Switch 1 also has a third VLAN
+   - The above shown diagram is equal to the diagram below
+
+
+             ┌-------------┐        ┌-------------┐
+             |   Router 1  |        |   Router 2  |
+             └|-----------|┘        └|-----------|┘
+              |           |          |           |
+┌-------------|┐        ┌-|----------|-┐        ┌|-------------┐
+|   Switch 1   |        |   Switch 2   |        |   Switch 3   |
+└--------------┘        └--------------┘        └--------------┘
+
+Now imagine we added hosts:
+
+                           ┌-------------┐        ┌-------------┐
+                           |   Router 1  |        |   Router 2  |
+                           └|-----------|┘        └|-----------|┘
+                            |           |          |           |
+┌--------┐    ┌-------------|┐        ┌-|----------|-┐        ┌|-------------┐
+| Host 1 |----|   Switch 1   |        |   Switch 2   |        |   Switch 3   |
+└--------┘    └--------------┘        └-------|------┘        └--------------┘
+                                              |
+                                          ┌---|----┐
+                                          | Host 2 |
+                                          └--------┘
+Each host takes up one port on the switch.
+   - These ports are referred to as Access Ports
+   - The ones not occupied by anything are called untagged ports
+
+An access port is a switch port configured to belong to one specific VLAN.
+Any frames received on an access port are assumed to belong to its associated VLAN,
+and the switch does not add or read VLAN tags on this port.
+It's used to connect devices like computers or printers that don't understand VLAN tags.
+
+An untagged port refers to a port configuration where frames transmitted
+from the port do not carry a VLAN tag. This can be applied to an access
+port (most commonly) or even to a specific VLAN on a trunk port (as the Native VLAN).
+
+
+The VLAN diagram above depicts one connection for each extended VLAN to another Physical Switch.
+However, now imagine what would happen if we had a couple more VLANs.
+They all would take up their own Ethernet connection in the switch,
+which reduces the number of hosts we can connect to those VLANs.
+
+A solution to consider is "Trunking"
+   - Trunking allows multiple VLANs to share a SINGLE physical connection between Switches
+     or other networking devices.
+   - A trunk link carries traffic for multiple VLANs simultaneously.
+   - Each frame is tagged (in the layer 2 header) to identify which VLAN it belongs to
+
+VLAN Tagging
+   - As mentioned above, VLAN Tags are added to the Ethernet frames to identify where to send the frames
+   - The most common tagging protocol is IEEE 802.1Q, which inserts 4-byte tag to the frame
+   - The tag can also contain priority
+
+Okay, but what if the frame doesnt have a tag?
+
+In that case, we use something called the NATIVE VLAN
+  - A Native VLAN is just a default VLAN, where untagged frames get sent to
+  - So, if a tag-less frame arrives at the trunk link, it is assumed it belongs to the Native VLAN
+
+
+Where does the trunk link connect into?
+
+The trunk link is the physical (sometimes logical) connection between switches and other network devices
+  - The trunk link connects into the trunk port on a switch
+  - A trunk port is designed to handle tagged frames
+     - When a trunk port receives a tagged frame it examines it
+     - Once it has identified the VLAN tag it will send it off to the corresponding VLAN
+     - If the trunk port can't idenitify a tag (or frame doenst have one) it sends
+       it to the Native VLAN
+
+            TRUNK LINK
+               ||     __/-- TRUNK PORT
+               ||  __/
+               || /
+┌-----------|--||--|----------------┐
+| ┌--┐ ┌--┐ | ┌--┐ | ┌--┐ ┌--┐ ┌--┐ |
+| |  | |  | | |  | | |  | |  | |  | |
+| └--┘ └--┘ | └--┘ | └--┘ └--┘ └--┘ |
+└-----------|------|----------------┘
+   VLAN 1   |      |    VLAN 2
+
+
+
+========================== OVERVIEW ==========================
+
+VLANs break up physical switches into logical "mini switches"
+VLANs allow the extension of "mini switches" to multiple physical switches
+
+VLANs allow your logical topology to be unrestrained by your physical topology
+
+Access/Untagged ports are associated with only ONE VLAN, and can only carry traffic for ONE VLAN
+
+
+Trunk links are the physical connection, like a cable, between switches or other physical devices.
+  - The trunk link is responsible for
+
+Trunk ports are where the trunk link connects into the switch.
+  - This is where sending traffic to different VLANs based on their tag comes into play
+  - This is where the logic happens
+
+** This is similar to how Routers are the physical aspect and routing is the software aspect **
+
+
+IEEE 802.1Q Protocol is the open standard for how to tag Layer 2 frames
+
+Native VLAN is the one VLAN that's allowed to traverse trunk link without a VLAN tag
+

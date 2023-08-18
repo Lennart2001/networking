@@ -10,14 +10,13 @@
 - **[Switches](networking_fundamentals/switches)**
   - **[Switches Part 1](networking_fundamentals/switches/switches_part1.dat)**
   - **[Switches Part 2](networking_fundamentals/switches/switches_part2.dat)**
+  - **[VLANs](networking_fundamentals/switches/vlans.dat)**
 - **[Routers](networking_fundamentals/routers)**
   - **[Routers Part 1](networking_fundamentals/routers/routers_part1.dat)**
   - **[Routers Part 2](networking_fundamentals/routers/routers_part2.dat)**
   - **[Routers Part 3](networking_fundamentals/routers/routers_part3.dat)**
 - **[Networking Protocols](networking_fundamentals/protocols_overview.dat)**
 - **[How Data Moves Summary](networking_fundamentals/packet_travel_summary.dat)**
-
-## VLANs (Virtual Local Area Network)
 
 ## Subnetting
 
