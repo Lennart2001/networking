@@ -2,9 +2,10 @@
 
 VLANs (Virtual Local Area Network) operate within switches.
 
-VLANs behave exactly like switches.
-   - VLANs are logical switches within physical Switches
-   - This means, a single switch can be split into multiple Virtual Switches (or VLANs)
+VLANs allow a physical switch to be partitioned into multiple logical segments,
+each functioning as an independent broadcast domain, similar to separate physical switches.
+  - VLANs are logical switches within physical Switches
+  - This means, a single switch can be split into multiple Virtual Switches (or VLANs)
 
                Switch
 ┌-----------------|-----------------┐

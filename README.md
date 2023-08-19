@@ -10,19 +10,24 @@
 - **[Switches](networking_fundamentals/switches)**
   - **[Switches Part 1](networking_fundamentals/switches/switches_part1.dat)**
   - **[Switches Part 2](networking_fundamentals/switches/switches_part2.dat)**
-  - **[VLANs](networking_fundamentals/switches/vlans.dat)**
 - **[Routers](networking_fundamentals/routers)**
   - **[Routers Part 1](networking_fundamentals/routers/routers_part1.dat)**
   - **[Routers Part 2](networking_fundamentals/routers/routers_part2.dat)**
   - **[Routers Part 3](networking_fundamentals/routers/routers_part3.dat)**
-  - **Route Precedence**
+  - **Route Precedence** *(Beyond)*
 - **[Networking Protocols](networking_fundamentals/protocols_overview.dat)**
 - **[How Data Moves Summary](networking_fundamentals/packet_travel_summary.dat)**
-- **Local Broadcast vs Directed Broadcast**
+- **Local Broadcast vs Directed Broadcast** *(Beyond)*
+
+## Virtual Local Area Network (VLAN)
+
+- **[VLANs Overview](networking_fundamentals/switches/vlans.dat)**
+- **Configuring VLANs**
+- **Routing Between VLANs & Layer 3 Switches**
 
 ## Subnetting
 
-- **Subnetting Part 1**
+- **[Subnetting Part 1](subnetting/subnetting_part1.dat)**
 - **Subnetting Part 2**
 - **Subnetting Part 3**
 - **Subnetting Part 4**
@@ -152,3 +157,20 @@
 
 ## Practical TLS (Transport Layer Security)
 
+## Cryptography
+- **Square and Multiply**
+- **Hashing Algorithms**
+- **Message Integrity**
+- **Confidentiality**
+- **Symmetric Encryption**
+- **Asymmetric Encryption**
+- **Using Asymmetric Keys**
+- **Authentication**
+- **Anti-Replay**
+- **RSA Algorithm**
+- **Diffie-Hellman**
+- **Digital Signature Algorithm (DSA)**
+
+
+## Miscellaneous
+- **Understanding Ethernet Wiring**

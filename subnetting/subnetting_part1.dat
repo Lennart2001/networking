@@ -1,0 +1,111 @@
+============================= Subnetting Part 1 =============================
+
+
+Subnetting is taking a network and dividing it into smaller sub-networks
+
+
+10.0.0.x       /24                  /25                /26               /27  ...  /28  ... /29 ...
+            ____________        ____________       ____________
+          .0            |     .0            |     0            |
+                        |                   |                  |
+                        |                   |                  |
+          .50-----------|     .50-----------|     50-----------|
+                        |                   |     ¯¯¯¯¯¯¯¯¯¯¯¯¯|
+                        |                   |                  |
+          .100----------|     .100----------|     100----------|
+                        |      _____________|     _____________|
+                        |                   |                  | ... ...
+          .150----------|     .150----------|     150----------|
+                        |                   |                  |
+                        |                   |     _____________|
+          .200----------|     .200----------|     200----------|
+                        |                   |                  |
+                        |                   |                  |
+          .255__________|     .255__________|     255__________|
+           10.0.0.0-255        10.0.0.0-127       10.0.0.0-63
+                               10.0.0.128-255     10.0.0.64-127
+                                 [Halved]         10.0.0.128-191
+                                                  10.0.0.192-255
+                                                    [Quartered]
+
+It is also possible to "mix and match" with the subnets
+
+  ____________
+.0            | #1
+              |
+              |      ┌------------------------┐
+.50   /25     |  <-- | 10.0.0.0 -> 10.0.0.127 |
+              |      └------------------------┘
+              |
+.100          |
+______________|      ┌------------------------┐
+      /27     |  <-- |10.0.0.128 -> 10.0.0.159|
+.150          | #2   └------------------------┘
+¯¯¯¯¯¯¯¯¯¯¯¯¯¯| #3   ┌------------------------┐
+      /27     |  <-- |10.0.0.160 -> 10.0.0.191|
+.200¯¯¯¯¯¯¯¯¯¯|      └------------------------┘
+     /26      | #4   ┌------------------------┐
+              |  <-- |10.0.0.192 -> 10.0.0.255|
+.255__________|      └------------------------┘
+
+
+There are seven attributes of Subnetting:
+
+Network ID
+  - A Network ID represents the first possible IP address in a subnet
+  - So, for the #1 subnet the Network ID would be 10.0.0.0
+  - For subnet #3 the Network ID would be 10.0.0.160
+  - A Host can't be assigned the Network ID IP Address
+  - The purpose of a Network ID 
+
+Broadcast IP
+  - The Broadcast IP is the last possible IP Address in a subnet
+  - So, for the #1 subnet the Broadcast IP would be 10.0.0.127
+  - For subnet #3 the Broadcast I_ would be 10.0.0.191
+  - The purpose of a Broadcast IP is to send the data to every single Host in the Network
+
+First Host IP
+  - First IP Address after the Network ID
+
+Last Host IP
+  - The Last usable IP Address - the last IP Address before Broadcast IP
+
+The idea behind the first host IP and last host IP is to give us a range of usable Host Addresses
+  - This is important because sometimes there are certain IP Addresses assigned for other tasks
+    which means we can't have a host be that particular IP Address
+
+Next Network
+  - Is the Network ID of the NEXT Sub-Network
+  - The Next Network will always be the IP Address after the Broadcast IP Address
+
+# IP Addresses
+  - Is the total number of addresses inside a Sub-Network
+
+CIDR/Subnet
+  - CIDR is a type of notation which is displayed as /0, /1,..., /24, /25,....
+  - A Subnet Mask on the other hand displays a full "IP Address"
+    - A subnet Mask can look like this: 255.255.255.0 = /24
+                                        255.255.255.128 = /25
+                                        255.255.255.192 = /26
+                                        255.255.255.224 = /27
+
+
+  ____________      ┌--------------------------------┐
+.0            |     |Network ID:     10.0.0.0  -\    |
+              |     |Broadcast IP:   10.0.0.127  +1  |
+              |     |First Host IP:  10.0.0.1  -/    |
+.50   /25     |  <--|Last Host IP:   10.0.0.126      |
+              |     |Next Network:   10.0.0.128      |
+              |     |# IP Addresses: 128 (126 Usable)|
+.100          |     |Subnet:         255.255.255.128 |
+______________|     └--------------------------------┘
+      /27     |
+.150          |     ┌--------------------------------┐
+¯¯¯¯¯¯¯¯¯¯¯¯¯¯|     |Network ID:     10.0.0.160      |
+      /27     |  <--|Broadcast IP:   10.0.0.191 -\   |
+.200¯¯¯¯¯¯¯¯¯¯|     |First Host IP:  10.0.0.161   +1 |
+     /26      |     |Last Host IP:   10.0.0.190   /  |
+              |     |Next Network:   10.0.0.192 -/   |
+.255__________|     |# IP Addresses: 32 (30 Usable)  |
+                    |Subnet:         255.255.255.224 |
+                    └--------------------------------┘
