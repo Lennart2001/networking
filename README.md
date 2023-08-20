@@ -27,10 +27,10 @@
 
 ## Subnetting
 
-- **[Subnetting Part 1](subnetting/subnetting_part1.dat)**
-- **Subnetting Part 2**
-- **[Subnetting Cheat Sheet](subnetting/subnet_cheat_sheet.dat)**
-
+- **[Subnetting Definition](subnetting/subnetting_definition.dat)**
+- **[Subnetting Range 25-32](subnetting/subnetting_range_25_32.dat)**
+- **[Subnetting Range 17-24](subnetting/subnetting_range_17_24.dat)**
+- **Subnetting Range 1-16**
 
 
 ## Network Address Translation (NAT)
