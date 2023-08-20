@@ -29,11 +29,8 @@
 
 - **[Subnetting Part 1](subnetting/subnetting_part1.dat)**
 - **Subnetting Part 2**
-- **Subnetting Part 3**
-- **Subnetting Part 4**
-- **Subnetting Part 5**
-- **Subnetting Part 6**
-- **Subnetting Part 7**
+- **[Subnetting Cheat Sheet](subnetting/subnet_cheat_sheet.dat)**
+
 
 
 ## Network Address Translation (NAT)

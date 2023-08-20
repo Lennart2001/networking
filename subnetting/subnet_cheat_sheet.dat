@@ -1,0 +1,87 @@
+======================= Subnet Cheat Sheet =======================
+
+
+┌------------------------------------------------------------┐
+| 128   64   32   16    8     4     2     1   |  Group Size  |
+| 128  194  224  240  248   252   254   255   |  Subnet Mask |
+| /25  /26  /27  /28  /29   /30   /31   /32   |  CIDR        |
+└------------------------------------------------------------┘
+
+
+=============== Example ===============
+
+                           ┌--------------------------------┐
+                           |Network ID:                     |
+                           |Broadcast IP:                   |
+┌----------------┐         |First Host IP:                  |
+| 10.1.1.55 /28  |   -->   |Last Host IP:                   |
+└----------------┘         |Next Network:                   |
+                           |# IP Addresses:                 |
+                           |Subnet:                         |
+                           └--------------------------------┘
+
+The /28 tells us that our Subnet Mask will be 255.255.255.240
+
+┌-------------------------┐
+| Subnet: 255.255.255.240 |
+└-------------------------┘
+
+From the /28 we can also tell that our Group Size will be 16 IP Addresses.
+
+┌-------------------------┐
+|# IP Addresses:   16     |
+└-------------------------┘
+
+Through the Group size we are able to find the range of our working Subnet.
+
+10.1.1.0
+10.1.1.16
+10.1.1.32
+10.1.1.48 ┐/  The IP Address 10.1.1.55 is between 10.1.1.48 and 10.1.1.63
+   ...    ┘
+10.1.1.64
+
+We look at the first IP Address of the range to find the Network ID.
+
+┌-------------------------┐
+| Network ID:  10.1.1.48  |
+└-------------------------┘
+
+The first Host IP Address is one more than the Network ID.
+
+┌---------------------------┐
+| First Host IP:  10.1.1.49 |
+└---------------------------┘
+
+The broadcast IP Address is the last IP Address in the range.
+
+┌---------------------------┐
+| Broadcast IP:  10.1.1.63  |
+└---------------------------┘
+
+The Last Host IP Address is one less than the Broadcast IP Address.
+
+┌---------------------------┐
+| Last Host IP:  10.1.1.62  |
+└---------------------------┘
+
+The next network is one more than the broadcast IP Address.
+
+┌---------------------------┐
+| Next Network:  10.1.1.64  |
+└---------------------------┘
+
+
+
+===========  Final Result ===========
+
+                           ┌--------------------------------┐
+                           |Network ID:     10.1.1.48       |
+                           |Broadcast IP:   10.1.1.63       |
+┌----------------┐         |First Host IP:  10.1.1.49       |
+| 10.1.1.55 /28  |   -->   |Last Host IP:   10.1.1.62       |
+└----------------┘         |Next Network:   10.1.1.64       |
+                           |# IP Addresses: 16  (14 Usable) |
+                           |Subnet:         255.255.255.240 |
+                           └--------------------------------┘
+                           
