@@ -30,7 +30,9 @@
 - **[Subnetting Definition](subnetting/subnetting_definition.dat)**
 - **[Subnetting Range 25-32](subnetting/subnetting_range_25_32.dat)**
 - **[Subnetting Range 17-24](subnetting/subnetting_range_17_24.dat)**
-- **Subnetting Range 1-16**
+- **[Subnetting Range 1-16](subnetting/subnetting_range_1_16.dat)**
+- **Fixed-Length Subnet Mask (FLSM)**
+- **Variable-Length Subnet Mask (VLSM)**
 
 
 ## Network Address Translation (NAT)
