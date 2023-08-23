@@ -1,0 +1,297 @@
+============================= Fixed/Variable Length Subnetting Mask (FLSM/VLSM) =============================
+
+Each CIDR increment doubles the amount of networks.
+
+This is true regardless of where you start. 
+
+
+  /0   /1   /2   /3   /4            /8   /9   /10  /11  /12          /22  /23  /24  /25  /26
+┌------------------------┐        ┌------------------------┐        ┌------------------------┐
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+|    |    |    |----|----|        |    |    |    |----|----|        |    |    |    |----|----|
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+|    |    |----|----|----|        |    |    |----|----|----|        |    |    |----|----|----|
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+|    |    |    |----|----|        |    |    |    |----|----|        |    |    |    |----|----|
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+|    |----|----|----|----| EQUALS |    |----|----|----|----| EQUALS |    |----|----|----|----|
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+|    |    |    |----|----|        |    |    |    |----|----|        |    |    |    |----|----|
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+|    |    |----|----|----|        |    |    |----|----|----|        |    |    |----|----|----|
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+|    |    |    |----|----|        |    |    |    |----|----|        |    |    |    |----|----|
+|    |    |    |    |----|        |    |    |    |    |----|        |    |    |    |    |----|
+└------------------------┘        └------------------------┘        └------------------------┘
+  1    2    4    8    16            1    2    4    8    16            1    2    4    8    16
+
+
+The fixed length subnetting mask is a very straight forward (and often an un-optimized) approach
+to creating subnets.
+
+
+Suppose we have a topology like this:
+┌-9.9.9.0 /24----------------------------------------------------┐
+|                                  /-------------------- [ 25 ]  |
+|                                 /                              |
+|                    ┌----------┐/                               |
+|               /----| Router 2 |----------------------- [ 7 ]   |
+|              /     └----------┘\                               |
+|             /                   \                              |
+|┌----------┐/                     \-------------------- [ 10 ]  |
+|| Router 1 |                                                    |
+|└----------┘\                     /-------------------- [ 19 ]  |
+|             \                   /                              |
+|              \     ┌----------┐/                               |
+|               \----| Router 3 |----------------------- [ 12 ]  |
+|                    └----------┘\                               |
+|                                 \                              |
+|                                  \-------------------- [ 31 ]  |
+└----------------------------------------------------------------┘
+
+
+Using the FLSM approach, all of the subnets must have the same size.
+
+This means, we can either equally divide 256 into 8 equal parts,
+and give each subnet the same amount of IP Addresses.
+
+OR
+
+We can look at the network with the highest number of hosts,
+and give each subnet that amount of IP Addresses.
+
+In either case, the subnet mask will be the same for each subnet.
+
+This is because:
+256 / 8 = 32
+AND
+The subnet with most IP Addresses has 31, where the next power of 2 is 32.
+
+
+So, out new network will look like this:
+
+┌-9.9.9.0 /24----------------------------------------------------┐
+|                                  /------9.9.9.0 /27--- [ 25 ]  |
+|                                 /                              |
+|                    ┌----------┐/                               |
+|               /----| Router 2 |--------9.9.9.32 /27--- [ 7 ]   |
+|              /     └----------┘\                               |
+|             /                   \                              |
+|┌----------┐/                     \-----9.9.9.64 /27--- [ 10 ]  |
+|| Router 1 |                                                    |
+|└----------┘\                     /-----9.9.9.96 /27--- [ 19 ]  |
+|             \                   /                              |
+|              \     ┌----------┐/                               |
+|               \----| Router 3 |-------9.9.9.128 /27--- [ 12 ]  |
+|                    └----------┘\                               |
+|                                 \                              |
+|                                  \----9.9.9.160 /27--- [ 31 ]  |
+└----------------------------------------------------------------┘
+
+All of our subnets are of size /27.
+
+Going back to our illustration from above, this is all the IP Addresses that are currently occupied:
+
+ /24  /25  /26  /27  /28
+┌------------------------┐--------------
+|    |    |    | ## |----|
+|    |    |    |----|----|     USED
+|    |    |    | ## |----|
+|    |    |----|----|----|
+|    |    |    | ## |----|     USED
+|    |    |    |----|----|
+|    |    |    | ## |----|
+|    |----|----|----|----|     USED
+|    |    |    | ## |----|
+|    |    |    |----|----|
+|    |    |    | ## |----|     USED
+|    |    |----|----|----|--------------
+|    |    |    |    |----|    UNUSED
+|    |    |    |----|----|
+|    |    |    |    |----|    UNUSED
+└------------------------┘--------------
+  1    2    4    8    16
+
+This means we have allocated 192 IP Addresses and have 64 IP Addresses left.
+
+
+=============================== Variable Length Subnet Mask (VLSM) ===============================
+
+
+What we can do with Variable Length Subnet Masks is assign different sized Subnet Masks to each subnet
+  - As you can see in this topology, each subnet mask is based on the number of hosts in the subnet.
+  - This eliminates overly unused IP Address ranges.
+  
+   ┌-9.9.9.0 /24----------------------------------------------------┐
+   |                    ┌-9.9.9.0 /26---------------------------┐   |
+   |                    |         /------9.9.9.0 /27--- [ 25 ]  |   |
+   |                    |        /                              |   |
+   |                ┌----------┐/                               |   |
+   |           /----| Router 2 |---------9.9.9.32 /29--- [ 7 ]  |   |
+   |          /     └----------┘\                               |   |
+   |         /          |        \                              |   |
+┌----------┐/           |         \-----9.9.9.40 /28--- [ 10 ]  |   |
+|          |            └---------------------------------------┘   |
+| Router 1 |                                                        |
+|          |            ┌-9.9.9.64 /25--------------------------┐   |
+└----------┘\           |         /-----9.9.9.64 /27--- [ 19 ]  |   |
+   |         \          |        /                              |   |
+   |          \     ┌----------┐/                               |   |
+   |           \----| Router 3 |--------9.9.9.96 /28--- [ 12 ]  |   |
+   |                └----------┘\                               |   |
+   |                    |        \                              |   |
+   |                    |         \----9.9.9.112 /27--- [ 31 ]  |   |
+   |                    └---------------------------------------┘   |
+   └----------------------------------------------------------------┘
+
+Here we are confining the Routers 2+3 inside the subnet 9.9.9.0/26.
+  - This configuration makes it possible to use the available IP Addresses
+    in subnet 9.9.9.0 /26
+      - Router 2: 9.9.9.56/30  (9.9.9.56 -> 9.9.9.59)
+      - Router 3: 9.9.9.60/30  (9.9.9.60 -> 9.9.9.63)
+
+   ┌-9.9.9.0 /24----------------------------------------------------┐
+   |                    ┌-9.9.9.0 /26---------------------------┐   |
+   |                    |         /------9.9.9.0 /27--- [ 25 ]  |   |
+   |                    |        /                              |   |
+   |                ┌----------┐/                               |   |
+   |           /----| Router 2 |--------9.9.9.32 /29--- [ 7 ]   |   |
+   |          /     └----------┘\                               |   |
+   |         /          |        \                              |   |
+┌----------┐/           |         \-----9.9.9.40 /28--- [ 10 ]  |   |
+|          |        ┌----------┐                                |   |
+| Router 1 |--------| Router 3 |--------------------------------┘   |
+|          |        └----------┘                                    |
+└----------┘          | | |  ┌-9.9.9.64 /25---------------------┐   |
+   |                  | | |  |    /-----9.9.9.96 /27--- [ 19 ]  |   |
+   |                  | | |  |   /                              |   |
+   |                  | | └-----/                               |   |
+   |                  | └--------------9.9.9.128 /28--- [ 12 ]  |   |
+   |                  └---------\                               |   |
+   |                         |   \                              |   |
+   |                         |    \----9.9.9.144 /27--- [ 31 ]  |   |
+   |                         └----------------------------------┘   |
+   └----------------------------------------------------------------┘
+
+This is another topology for our network.
+   - Here our Router 2+3 only inside the 9.9.9.0/24 subnet
+   - Our routers are able to have "any" IP address of the unused IP Addresses
+      - 9.9.9.0/26 (9.9.9.0 -> 9.9.9.63)
+      - 9.9.9.64/25 (9.9.9.64 -> 9.9.9.191)
+      - This means, all of the IP Addresses between 9.9.9.0 and 9.9.9.191 are allocated
+         - It doesn't matter whether they are used or not
+         - Unless you are in the subnet, you cannot access those IP Addresses from a higher subnet
+      - Router 2 + 3 can choose any /30 subnet in range 9.9.9.192 -> 9.9.9.255
+      - For simplicity, Router 2 gets subnet 9.9.9.192/30 and Router 3 9.9.9.196/30
+
+   ┌-9.9.9.0 /24----------------------------------------------------┐
+   |                                ┌-9.9.9.0 /26---------------┐   |
+   |                                | /--9.9.9.0 /27--- [ 25 ]  |   |
+   |                                |/                          |   |
+   |                ┌----------┐____/                           |   |
+   |           /----| Router 2 |---------9.9.9.32 /29--- [ 7 ]  |   |
+   |          /     └----------┘¯¯¯¯\                           |   |
+   |         /                      |\                          |   |
+┌----------┐/                       | \-9.9.9.40 /28--- [ 10 ]  |   |
+|          |                        └---------------------------┘   |
+| Router 1 |                                                        |
+|          |                       ┌-9.9.9.64 /25---------------┐   |
+└----------┘\                      | /--9.9.9.64 /27--- [ 19 ]  |   |
+   |         \                     |/                           |   |
+   |          \     ┌----------┐___/                            |   |
+   |           \----| Router 3 |--------9.9.9.96 /28--- [ 12 ]  |   |
+   |                └----------┘¯¯¯\                            |   |
+   |                               |\                           |   |
+   |                               | \-9.9.9.112 /27--- [ 31 ]  |   |
+   |                               └----------------------------┘   |
+   └----------------------------------------------------------------┘
+
+
+Another way for conserving IP Addresses, we can utilize 31-Bit Prefixes on Point-to-Point Links
+   - As there only one sender and receiver in point to point subnet, the
+     need for a broadcast address and default gateway is diminished
+
+┌---------------------------------------------------------------------------------┐
+| RFC 3021                                                                        |
+|                                                                                 |
+|           Using 31-Bit Prefixes on IPv4 Point-to-Point Links                    |
+|                                                                                 |
+|     With ever-increasing pressure to conserve IP address space on the           |
+|     Internet, it makes sense to consider where relatively minor changes         |
+|     can be made to fielded practice to improve numbering efficiency.  One       |
+|     such change, proposed by this document, is to halve the amount of           |
+|     address space assigned to point-to-point links (common throughout the       |
+|     Internet infrastructure) by allowing the use of 31-bit subnet masks         |
+|     in a very limited way.                                                      |
+|                                                                                 |
+└---------------------------------------------------------------------------------┘
+
+
+
+======================== OVERVIEW ========================
+
+
+Generally, fixed length subnet masks are inefficient due to the inflexible subnet sizes.
+   - Every subnet is the same size in a given network.
+   - We base our subnet sizes on the largest subnet
+      - This means, if we use a point-to-point link between two routers,
+        their subnet must also adhere to the overall accepted subnet size.
+      - This means, point-to-point subnets may have to be size /27
+        - This leads to a big inefficiency in the overall network
+
+Generally, variable length subnet masks are efficient due to their flexible subnet sizes.
+   - Every subnet can have its own size based on its IP Address needs.
+   - Therefore, one subnet can be of size /29 and then next of size /26
+      - This is especially useful for point-to-point links, which use /31 or /30 subnets
+   - The efficiency comes from minimizing the amount of IP Address being wasted due to
+     the flexibility of subnet sizes.
+   - VLSM allows for very complex network designs and highly optimized routing protocols,
+     such as OSPF and EIGRP
+
+
+When should I use FLSM over VLSM?
+- For simplicity reasons, one may choose FLSM over VLSM.
+  - If we had 3 subnets of size /27 and wanted to add a 4th, the implementation would be very simple.
+  - This applies if the structure of the new subnet is the same as the previous ones
+- For uniformity reasons
+  - If uniform subnet sizes are desirable, one may choose FLSM
+- Additionally, some hardware or policies may not support VLSM
+  - Such as RIPv1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

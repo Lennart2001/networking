@@ -21,7 +21,7 @@
 
 ## Virtual Local Area Network (VLAN)
 
-- **[VLANs Overview](networking_fundamentals/switches/vlans.dat)**
+- **[VLANs Overview](vlans/vlans.dat)**
 - **Configuring VLANs**
 - **Routing Between VLANs & Layer 3 Switches**
 
