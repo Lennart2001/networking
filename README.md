@@ -175,3 +175,8 @@
 ## Miscellaneous
 - **Understanding Ethernet Wiring**
 - **Binary**
+
+
+## Acknowledgments
+
+- **Ed Harmoush** - [Practical Networking](http://www.practicalnetworking.net) - For sharing his knowledge with everyone.
