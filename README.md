@@ -31,9 +31,10 @@
 - **[Subnetting Range 25-32](subnetting/subnetting_range_25_32.dat)**
 - **[Subnetting Range 17-24](subnetting/subnetting_range_17_24.dat)**
 - **[Subnetting Range 1-16](subnetting/subnetting_range_1_16.dat)**
-- **Fixed-Length Subnet Mask (FLSM)**
-- **Variable-Length Subnet Mask (VLSM)**
-
+- **[Fixed/Variable Length Subnet Mask (FLSM/VLSM)](subnetting/fixed_variable_length_subnet_mask.dat)**
+- **Supernetting, IP Aggregation, IP Summarization**
+- **Wildcard Masks**
+- **Configuring a Subnet**
 
 ## Network Address Translation (NAT)
 
@@ -173,3 +174,4 @@
 
 ## Miscellaneous
 - **Understanding Ethernet Wiring**
+- **Binary**
