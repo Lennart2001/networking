@@ -32,7 +32,7 @@
 - **[Subnetting Range 17-24](subnetting/subnetting_range_17_24.dat)**
 - **[Subnetting Range 1-16](subnetting/subnetting_range_1_16.dat)**
 - **[Fixed/Variable Length Subnet Mask (FLSM/VLSM)](subnetting/fixed_variable_length_subnet_mask.dat)**
-- **Supernetting, IP Aggregation, IP Summarization**
+- **[Supernetting, IP Aggregation, IP Summarization](subnetting/supernetting_ip_aggr_ip_sum.dat)**
 - **Wildcard Masks**
 - **Configuring a Subnet**
 
