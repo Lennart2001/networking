@@ -1,0 +1,60 @@
+========================== Wildcard Masks ==========================
+
+
+Wildcard masks are often referred to as the "inverse subnet".
+  - This is mostly due to how they identify network portions of an address.
+  - The "1s" and "0s" are flipped.
+
+CIDR:          /26
+                  255         255         255          192
+Subnet Mask:   1111 1111 . 1111 1111 . 1111 1111 . 1100 0000
+                   0           0           0           63
+Wildcard Mask: 0000 0000 . 0000 0000 . 0000 0000 . 0011 1111
+
+CIDR:          /24
+                  255         255         255          0
+Subnet Mask:   1111 1111 . 1111 1111 . 1111 1111 . 0000 0000
+                   0           0           0           255
+Wildcard Mask: 0000 0000 . 0000 0000 . 0000 0000 . 1111 1111
+
+CIDR:          /21
+                  255         255         248          0
+Subnet Mask:   1111 1111 . 1111 1111 . 1111 1000 . 0000 0000
+                   0           0           7           255
+Wildcard Mask: 0000 0000 . 0000 0000 . 0000 0111 . 1111 1111
+
+CIDR:          /32   (This references a single IPv4 Address)
+                  255         255         255          255
+Subnet Mask:   1111 1111 . 1111 1111 . 1111 1111 . 1111 1111
+                   0           0           0           0
+Wildcard Mask: 0000 0000 . 0000 0000 . 0000 0000 . 0000 0000
+
+CIDR:          /32   (This references every IPv4 Address)
+                   0           0           0           0
+Subnet Mask:   0000 0000 . 0000 0000 . 0000 0000 . 0000 0000
+                  255         255         255          255
+Wildcard Mask: 1111 1111 . 1111 1111 . 1111 1111 . 1111 1111
+
+
+
+Wildcard masks bring a distinct flexibility when defining IP Address ranges.
+
+Wildcard mask are generally NOT used to define subnets/networks, but are used for
+Access Control Lists, routing protocols (i.e. OSPF) or filtering/matching mechanisms.
+
+Wildcard masks are very flexible, which makes them a great choice for defining IP Address
+ranges, but they lack the structural properties needed to define subnets.
+Their non-contiguous nature allows for more specific matching but doesn't align with the
+requirements for defining network and host boundaries within a subnet.
+
+
+In an OSPF configuration, you might use a wildcard mask like 0.0.0.63 to specify exactly which
+addresses within a subnet you want to include in the OSPF process. This doesn't define a new subnet
+but controls how addresses within an existing subnet are treated.
+  - Wildcard masks are essentially pointers to specific ranges of IP Addresses.
+  - "Apply this rule to these specific addresses."
+
+
+
+
+
