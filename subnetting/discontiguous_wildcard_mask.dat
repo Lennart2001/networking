@@ -140,26 +140,3 @@ HOWEVER However, Regular Wildcard Masks are still used today.
      - R2(config)# ip access-list extended COOLNET
        R2(config-ext-nac1)# permit ip 10.3.128.0 0.0.63.255 any
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

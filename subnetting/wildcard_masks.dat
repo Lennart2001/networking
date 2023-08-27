@@ -54,7 +54,3 @@ but controls how addresses within an existing subnet are treated.
   - Wildcard masks are essentially pointers to specific ranges of IP Addresses.
   - "Apply this rule to these specific addresses."
 
-
-
-
-
