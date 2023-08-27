@@ -22,6 +22,7 @@
 ## Virtual Local Area Network (VLAN)
 
 - **[VLANs Overview](vlans/vlans.dat)**
+- **Native VLANs** *(Needed?)*
 - **Configuring VLANs**
 - **Routing Between VLANs & Layer 3 Switches**
 
@@ -33,7 +34,8 @@
 - **[Subnetting Range 1-16](subnetting/subnetting_range_1_16.dat)**
 - **[Fixed/Variable Length Subnet Mask (FLSM/VLSM)](subnetting/fixed_variable_length_subnet_mask.dat)**
 - **[Supernetting, IP Aggregation, IP Summarization](subnetting/supernetting_ip_aggr_ip_sum.dat)**
-- **Wildcard Masks**
+- **[Wildcard Masks](subnetting/wildcard_masks.dat)**
+  - **[Discontiguous Wildcard Mask](subnetting/discontiguous_wildcard_mask.dat)**
 - **Configuring a Subnet**
 
 ## Network Address Translation (NAT)

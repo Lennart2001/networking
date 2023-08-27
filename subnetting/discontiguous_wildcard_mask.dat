@@ -1,0 +1,165 @@
+============================ Discontiguous Wildcard Mask ============================
+
+
+Most Wildcard masks will be a series of 0's followed by 1's
+  - 0000 0000 . 0000 0000 . 0000 0000 . 0011 1111
+
+But they can also look like this:
+  - 0000 0000 . 0000 0011 . 0000 1000 . 1111 1111
+  - This is called a discontiguous wildcard
+
+
+┌--------------┐
+|10.96.32.0 /24|
+└--------------┘\                                    ┌-Access Control List---------------┐
+┌--------------┐ \ ┌------------┐                    |  permit   10.96.32.0   0.0.0.255  |
+|10.97.32.0 /24|-- |  Router 1  |\                   |  permit   10.97.32.0   0.0.0.255  |
+└--------------┘ / └------------┘ \                  |  permit   10.98.32.0   0.0.0.255  |
+┌--------------┐/  /               \                 |  permit   10.99.32.0   0.0.0.255  |
+|10.98.32.0 /24|  /                 \                |  permit   10.96.40.0   0.0.0.255  |
+└--------------┘ /                   \               |  permit   10.97.40.0   0.0.0.255  |
+┌--------------┐/                   ┌------------┐   |  permit   10.98.40.0   0.0.0.255  |
+|10.99.32.0 /24|                    |  Router 3  |   |  permit   10.99.40.0   0.0.0.255  |
+└--------------┘                    └------------┘   └-----------------------------------┘
+┌--------------┐                    /                ┌--           Compare           --┐ ┌-Ignore -┐
+|10.96.40.0 /24|                   /   Wildcard Mask:|0000 0000 . 0000 0000 . 0000 0000|.|1111 1111|
+└--------------┘\                 /                  |                                 | |         |
+┌--------------┐ \ ┌------------┐/  MSG: 10.98.40.66 |0000 1010 . 0110 0010 . 0010 1000|.|0100 0010|
+|10.97.40.0 /24|-- |  Router 2  |                    └--                             --┘ └--     --┘
+└--------------┘ / └------------┘        10.96.32.0   0000 1010 . 0110 0000 . 0010 0000 . 0000 0000
+┌--------------┐/  /                     10.97.32.0   0000 1010 . 0110 0001 . 0010 0000 . 0000 0000
+|10.98.40.0 /24|  /                      10.98.32.0   0000 1010 . 0110 0010 . 0010 0000 . 0000 0000
+└--------------┘ /                       10.99.40.0   0000 1010 . 0110 0011 . 0010 0000 . 0000 0000
+┌--------------┐/                        10.96.40.0   0000 1010 . 0110 0000 . 0010 1000 . 0000 0000
+|10.99.40.0 /24|                         10.97.40.0   0000 1010 . 0110 0001 . 0010 1000 . 0000 0000
+└--------------┘                         10.98.40.0  [0000 1010 . 0110 0010 . 0010 1000]. 0000 0000
+                                         10.99.40.0   0000 1010 . 0110 0011 . 0010 1000 . 0000 0000
+
+
+As mentioned previously, Wildcard Masks ONLY compares 0s when matching and ignores 1s.
+
+When looking in the Access Control List table, we can see that we gave access to that
+match the first three octets.
+  - Looking at the "MSG", the source IP Address is getting looked up in the
+    Access Control List.
+  - Through the Wildcard mask, we found a match of the first three octets.
+     - We ignored the last octet, as the Wildcard mask has only 1s for the fourth octet
+
+
+
+There is a way to optimize the Access Control List via the Wildcard mask.
+Specifically, when we look at the
+
+
+┌--------------┐
+|10.96.32.0 /24|
+└--------------┘\                                    ┌-Access Control List---------------┐
+┌--------------┐ \ ┌------------┐                    |  permit   10.96.32.0   0.0.0.255  |
+|10.97.32.0 /24|-- |  Router 1  |\                   |  permit   10.97.32.0   0.0.0.255  |
+└--------------┘ / └------------┘ \                  |  permit   10.98.32.0   0.0.0.255  |
+┌--------------┐/  /               \                 |  permit   10.99.32.0   0.0.0.255  |
+|10.98.32.0 /24|  /                 \                |  permit   10.96.40.0   0.0.0.255  |
+└--------------┘ /                   \               |  permit   10.97.40.0   0.0.0.255  |
+┌--------------┐/                   ┌------------┐   |  permit   10.98.40.0   0.0.0.255  |
+|10.99.32.0 /24|                    |  Router 3  |   |  permit   10.99.40.0   0.0.0.255  |
+└--------------┘                    └------------┘   └-----------------------------------┘
+┌--------------┐                    /                ┌--           Compare               --┐ ┌-Ignore -┐
+|10.96.40.0 /24|                   /   Wildcard Mask:|0000 0000 . 0000 0000 . 0000  |0| 000|.|1111 1111|
+└--------------┘\                 /                  |                              | |    | |         |
+┌--------------┐ \ ┌------------┐/  MSG: 10.98.40.66 |0000 1010 . 0110 0010 . 0010  |1| 000|.|0100 0010|
+|10.97.40.0 /24|-- |  Router 2  |                    └--                            | |  --┘ └--     --┘
+└--------------┘ / └------------┘        10.96.32.0   0000 1010 . 0110 0000 . 0010  |0| 000 . 0000 0000
+┌--------------┐/  /                     10.97.32.0   0000 1010 . 0110 0001 . 0010  |0| 000 . 0000 0000
+|10.98.40.0 /24|  /                      10.98.32.0   0000 1010 . 0110 0010 . 0010  |0| 000 . 0000 0000
+└--------------┘ /                       10.99.40.0   0000 1010 . 0110 0011 . 0010  |0| 000 . 0000 0000
+┌--------------┐/                        10.96.40.0   0000 1010 . 0110 0000 . 0010  |1| 000 . 0000 0000
+|10.99.40.0 /24|                         10.97.40.0   0000 1010 . 0110 0001 . 0010  |1| 000 . 0000 0000
+└--------------┘                         10.98.40.0  [0000 1010 . 0110 0010 . 0010  |1| 000]. 0000 0000
+                                         10.99.40.0   0000 1010 . 0110 0011 . 0010  |1| 000 . 0000 0000
+
+
+If you look at the 4th bit (counting r->l) of the third octet, you notice we are comparing against a 0 and a 1
+  - This is inefficient because regardless of whether it's a 0 or a 1, the message goes through
+  - So, we can IGNORE that particular bit.
+  - New Wildcard Mask: Wildcard Mask: 0000 0000 . 0000 0000 . 0000 ->1<- 000 . 1111 1111
+  - This new Wildcard drastically reduces the IP Addresses in the Access Control List
+  - The new Wildcard Mask would be 0.0.8.255
+
+Wildcard Mask: 0000 0000 . 0000 0000 . 0000 1000 . 1111 1111
+
+┌-Access Control List---------------┐
+|  permit   10.96.32.0   0.0.8.255  |
+|  permit   10.97.32.0   0.0.8.255  |
+|  permit   10.98.32.0   0.0.8.255  |
+|  permit   10.99.32.0   0.0.8.255  |
+└-----------------------------------┘
+
+Additionally, if we look at bits 1 and 2 of the second octet, we notice that we let the messages
+through regardless of the bits state.
+  - This means, whether the state is of the bits are true or false doesn't matter
+  - We can tell the Wildcard mask to ignore those bits.
+  - We have to flip the 0 to a 1, so won't compare those bits anymore
+
+Wildcard Mask: 0000 0000 . 0000 0011 . 0000 1000 . 1111 1111
+
+┌-Access Control List---------------┐
+|  permit   10.96.32.0   0.3.8.255  |
+└-----------------------------------┘
+
+We have reduced the Access Control List to a single entry. From 8 -> 1
+
+Would the message still pass?
+
+Wildcard Mask:    0000 0000 . 0000 0011 . 0000 1000 . 1111 1111
+MSG: 10.98.40.66  0000 1010 . 0110 0010 . 0010 1000 . 0100 0010
+10.96.32.0:       0000 1010 . 0110 0000 . 0010 0000 . 0000 0000
+                  ^^^^ ^^^^   ^^^^ ^^     ^^^^  ^^^  <-- All match
+
+Discontiguous Wildcard Masks allow us to reduce the number of ACL lines
+  - This increases router performance, as the router doesn't have to process as many lines
+    whenever it gets a packet
+  - This functionality is impossible to do with subnet masks.
+     - This is because Subnet masks are 1s followed by 0s
+        - 1111 1111 . 1111 1111 . 1111 1111 . 0000 0000 -> 255.255.255.0
+
+
+However, Discontiguous Wildcard Masks are not very often used today.
+  - This is because they require very strict IP Addressing schemes
+     - Which generally produces more trouble than the improvement that it brings
+  - Additionally, routers are more computationally efficient/effective than they were 20 years ago,
+    so the performance improvement (of reducing ACL lines) with modern routers is negligible.
+
+
+HOWEVER However, Regular Wildcard Masks are still used today.
+  - Network statements for configurations in EIGRP and OSPF use wildcard masks
+     - R2(config)# router eigrp 90
+       R2(config-router)# network 10.2.0.0 0.0.7.255
+     - R2(config)# router ospf 110
+       R2(config-router)# network 10.1.2.0 0.0.0.31 area 0
+  - They are also used for Access Control Lists on CISCO Routers
+     - R2(config)# ip access-list extended COOLNET
+       R2(config-ext-nac1)# permit ip 10.3.128.0 0.0.63.255 any
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
