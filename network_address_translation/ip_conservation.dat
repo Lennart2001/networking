@@ -1,0 +1,203 @@
+============================ IP Address Conservation ============================
+
+
+Everything on the internet needs an IP Address.
+   - All IPv4 Addresses are 32 bits long (or 4 octets)
+      -    151    .    101    .    130    .    49
+        1001 0111 . 0110 0101 . 1000 0010 . 0011 0001
+   - Since IP Addresses are restricted by a finite number of bits,
+     the amount of IP Addresses is finite as well.
+      - For IPv4, there are only 2^32 IP Addresses
+        - 2^32 = 4,294,967,296 IP Addresses
+   - Originally, every single host was supposed to have a unqiue IP Address
+      - However, there are 8 billion people on earth
+        - Suppose we only look at 2 billion people.
+        - Each of them has a phone, and perhaps a laptop or tablet.
+          - This means, 4 billion devices.
+        - Now imagine every office building has computers
+          - One for each employee perhaps.
+        - Now imagine that from those 2 billion people, half had 2 phones in their lives
+        - You can see how the number of IP Addresses is very quickly exhausted
+        - So, what to do?
+        - One possible answer is IPv6, which offers 2^128 possible addresses
+          - 2^128 = 340,282,366,920,938,463,463,374,607,431,768,211,456
+             - 340 undecillion (Yea wtf is that number?! Lol)
+          - However, only 21.9% of all websites use IPv6.
+          - So, ~80% still use IPv4. How can we prevent running out of IP Addresses?
+
+We can use Network Address Translation (NAT) to prevent the running out of IP Addresses.
+
+How does NAT accomplish this?
+
+NAT created a set of IP Addresses that were reusable.
+  - These addresses are referred to as "Private" IPv4 addresses
+  - These addresses can be reused infinitely, anywhere
+  - For the most part, all remaining addresses are known as "Public" IPv4 addresses
+
+Private IPv4 Addresses:
+10.0.0.0     /8   - any IP address in the range of  10.#.#.#
+172.16.0.0   /12  - any IP address in the range of 172.[16-31].#.#
+192.168.0.0  /16  - any IP address in the range of 192.168.#.#
+
+
+NAT translates Private IP Addresses into Unique Public IP Addresses.
+
+
+            __
+          _/  \_            Mobile Phone: 192.168.1.11
+        _/      \_          Desktop PC:   192.168.1.22
+      _/   Home   \_        Tablet:       192.168.1.33
+    _/ WiFi Network \_      Laptop:       192.168.1.44
+  _/  192.168.1.0/24  \_    Fax Machine:  192.168.1.55
+ /                      \
+|      192.168.1.11-\    |
+|                    \   | Router IPv4:
+|      192.168.1.22-\ \  | 210.20.6.98
+|                    \_\_┌------------┐  /
+|      192.168.1.33------|  Router 1  |-{--
+|                    /¯/¯└------------┘  \
+|      192.168.1.44-/ /  |
+|                    /   |
+|      192.168.1.55-/    |
+└------------------------┘
+
+All of the IP Addresses inside the Home WiFi Network use one external IP Address.
+  - This means these 5 devices use 1 IP Address
+    - 5 : 1 Ratio
+
+This is how NAT works and how it allows us to extend the Address space of IPv4.
+
+Only Public IP Addresses are able to communicate with other Public IP Addresses.
+   - If a public IP Address receives data from a Private IP Address, the data
+     gets immediately dropped.
+     
+Now, imagine a neighborhood with a bunch of different houses:
+
+            __                                             __
+          _/  \_                                         _/  \_
+        _/      \_                                     _/      \_
+      _/   Home   \_                                 _/   Home   \_
+    _/ WiFi Network \_                             _/ WiFi Network \_
+  _/  192.168.1.0/24  \_                         _/  192.168.1.0/24  \_
+ /                      \  Router IPv4:         /                      \  Router IPv4:
+|     192.168.1.11-\     | 210.20.6.95         |     192.168.1.11-\     | 210.20.6.96
+|     192.168.1.22--\___┌------------┐  /      |     192.168.1.22--\___┌------------┐  /
+|     192.168.1.33------|  Router 1  |-{--     |     192.168.1.33------|  Router 2  |-{--
+|     192.168.1.44--/¯¯¯└------------┘  \      |     192.168.1.44--/¯¯¯└------------┘  \
+|     192.168.1.55-/     |                     |     192.168.1.55-/     |
+└------------------------┘                     └------------------------┘
+            __                                             __
+          _/  \_                                         _/  \_
+        _/      \_                                     _/      \_
+      _/   Home   \_                                 _/   Home   \_
+    _/ WiFi Network \_                             _/ WiFi Network \_
+  _/  192.168.1.0/24  \_                         _/  192.168.1.0/24  \_
+ /                      \  Router IPv4:         /                      \  Router IPv4:
+|     192.168.1.11-\     | 210.20.6.97         |     192.168.1.11-\     | 210.20.6.98
+|     192.168.1.22--\___┌------------┐  /      |     192.168.1.22--\___┌------------┐  /
+|     192.168.1.33------|  Router 3  |-{--     |     192.168.1.33------|  Router 4  |-{--
+|     192.168.1.44--/¯¯¯└------------┘  \      |     192.168.1.44--/¯¯¯└------------┘  \
+|     192.168.1.55-/     |                     |     192.168.1.55-/     |
+└------------------------┘                     └------------------------┘
+
+Notice how the internal / private IP Addresses are the same for each household.
+  - This is the beauty of NAT, it allows us to reuse Private IP Addresses Infinitely many times
+
+
+Now, one question that came to me while writing this was nested NATs, similar to Russian dolls.
+  - Why stop at households? Why not create a "super router" which takes care of the whole neighborhood?
+  - Each household has its internal private IP Addresses, which can be reused infinitely many times,
+    and each neighborhood will also have its own private IP Addresses, which can be infinitely reused
+    by other neighborhoods.
+
+
+┌-----192.168.2.0/24--------------------------------------------------------------------------┐
+|            __                                             __                                |
+|          _/  \_                                         _/  \_                              |
+|        _/      \_                                     _/      \_                            |
+|      _/   Home   \_                                 _/   Home   \_                          |
+|    _/ WiFi Network \_                             _/ WiFi Network \_                        |
+|  _/  192.168.1.0/24  \_                         _/  192.168.1.0/24  \_                      |
+| /                      \  Router IPv4:         /                      \  Router IPv4:       |
+||     192.168.1.11-\     | 192.168.2.11        |     192.168.1.11-\     | 192.168.2.22       |
+||     192.168.1.22--\___┌------------┐         |     192.168.1.22--\___┌------------┐        |
+||     192.168.1.33------|  Router 1  |-\       |     192.168.1.33------|  Router 2  |-\      |
+||     192.168.1.44--/¯¯¯└------------┘  \      |     192.168.1.44--/¯¯¯└------------┘  \     |
+||     192.168.1.55-/     |               \     |     192.168.1.55-/     |               )    |
+|└------------------------┘                \    └------------------------┘              /     |
+|                                         ┌------------┐_______________________________/      |
+└-----------------------------------------|  Router 3  |--------------------------------------┘
+* The IP Addresses are 100% made up.      └------------┘
+  I have no idea if I am breaking any      Router IPv4:
+  Networking rules here.                   210.20.6.96
+
+┌-----192.168.2.0/24--------------------------------------------------------------------------┐
+|            __                                             __                                |
+|          _/  \_                                         _/  \_                              |
+|        _/      \_                                     _/      \_                            |
+|      _/   Home   \_                                 _/   Home   \_                          |
+|    _/ WiFi Network \_                             _/ WiFi Network \_                        |
+|  _/  192.168.1.0/24  \_                         _/  192.168.1.0/24  \_                      |
+| /                      \  Router IPv4:         /                      \  Router IPv4:       |
+||     192.168.1.11-\     | 192.168.2.11        |     192.168.1.11-\     | 192.168.2.22       |
+||     192.168.1.22--\___┌------------┐         |     192.168.1.22--\___┌------------┐        |
+||     192.168.1.33------|  Router 1  |-\       |     192.168.1.33------|  Router 2  |-\      |
+||     192.168.1.44--/¯¯¯└------------┘  \      |     192.168.1.44--/¯¯¯└------------┘  \     |
+||     192.168.1.55-/     |               \     |     192.168.1.55-/     |               )    |
+|└------------------------┘                \    └------------------------┘              /     |
+|                                         ┌------------┐_______________________________/      |
+└-----------------------------------------|  Router 3  |--------------------------------------┘
+* The IP Addresses are 100% made up.      └------------┘
+  I have no idea if I am breaking any      Router IPv4:
+  Networking rules here.                   210.20.6.97
+
+
+Notice how we are nesting NATs here? this is similar to Russian dolls,
+where each doll has another, smaller russian doll inside of her.
+
+Technically speaking, it is possible to have nested NAT environments,
+creating a sort of "russian doll" model of private IP address schemes.
+This is actually something you might find in certain complex network setups,
+like nested virtual environments or multi-tiered corporate networks.
+
+However, while this may look like a great idea, it is not an optimal solution.
+
+Benefits:
+1)
+   The biggest benefit would be IP Address conservation. We can infinitely reuse the private
+   IP Addresses.
+2)
+   It would also increase the isolation of networks, which can help filter out and control traffic.
+   Which CAN add more security.
+3)
+   Granular management, refers to the idea that different layers can have different management policies.
+   Which allows for more granular control over the entire network.
+4)
+   It can also provide local autonomy, where each layer can somewhat operate autonomously. This means,
+   each layer can have their own policies without affecting other layers.
+
+Drawbacks:
+1)
+   The biggest drawback would be SECURITY. Yes, while isolation may provide more security in that regard,
+   the sheer complexity of managing nested NATs creates a lot of surface for mistakes. These mistakes
+   can be security risks.
+2)
+   Piggybacking off of point 1), the complexity of the whole network makes it hard to troubleshoot and maintain.
+3)
+   Each layer of NAT requires packet inspections and address translations, which can introduce latency to the
+   network.
+4)
+   The inspections and address translations mentioned in point 4) also require a lot of computing and memory.
+   This becomes apparent the more simultaneous connections there are to the "super router".
+5)
+   The complexity speaks against the "best practices" of networking, where generally one tries to keep things
+   as simple as possible to reduce the number of potential mistakes.
+6)
+   Through IPv6, nested NATs (and NATs in general) become obsolete. 2^128 IP Addresses are a lot.
+
+
+So, while nested NATs offer some advantages like IP address conservation and hierarchical control,
+they come with significant drawbacks in terms of complexity, performance, and manageability.
+
+Additionally, NAT is generally not a long-term solution. It is only a short-term solution until
+we switch to IPv6 Addresses.

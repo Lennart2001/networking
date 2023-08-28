@@ -39,6 +39,7 @@
 - **Configuring a Subnet**
 
 ## Network Address Translation (NAT)
+- **[IP Conservation](network_address_translation/ip_conservation.dat)**
 
 ## Access Control Lists (ACLs)
 
@@ -177,7 +178,7 @@
 
 ## Miscellaneous
 - **Understanding Ethernet Wiring**
-- **Binary**
+- **Regex**
 
 
 ## Acknowledgments
