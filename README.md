@@ -40,7 +40,13 @@
 
 ## Network Address Translation (NAT)
 
+## Access Control Lists (ACLs)
+
 ## TCP & UDP Mastery
+
+## Practical OSPF (Open Shortest Path First)
+
+## Practical TLS (Transport Layer Security)
 
 ## Total Protocol Overview
 
@@ -153,11 +159,6 @@
 - **SLIP**: Serial Line Internet Protocol
 - **ATM**: Asynchronous Transfer Mode
 
-## Access Control Lists (ACLs)
-
-## Practical OSPF (Open Shortest Path First)
-
-## Practical TLS (Transport Layer Security)
 
 ## Cryptography
 - **Square and Multiply**
