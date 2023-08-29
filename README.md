@@ -40,6 +40,7 @@
 
 ## Network Address Translation (NAT)
 - **[IP Conservation](network_address_translation/ip_conservation.dat)**
+- **[Static NAT](network_address_translation/static_nat.dat)**
 
 ## Access Control Lists (ACLs)
 

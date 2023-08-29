@@ -1,0 +1,108 @@
+========================== Static Network Address Translation ==========================
+
+
+
+A packet contains a Data Payload, a L4 header, and a L3 header:
+  - Data Payload: Data
+  - L4 Header: Responsible for handling ports (src Port - dest Port)
+  - L3 Header: Responsible for handling IP Addresses (src IP - dest IP)
+
+Now, if the packet crosses a router and ONLY the IP address gets changed/translated,
+it is called NAT
+  - Network Address Translation
+  - NAT only changes the Layer 3 header.
+
+
+Static:
+  - Explicit mapping between an IP Address and another IP Address
+  - Explicit mapping between PRE-translation and POST-translation
+     - PRE-translation is the IP Address or Port of the "inside" or "local"
+     - POST-translation is the IP Address or Port of the "outside"
+
+
+Static NAT makes internal resources externally accessible.
+
+
+┌------------------------------┐                        {¯¯¯¯¯¯¯¯¯¯¯¯}
+|  Inside Network: 10.2.2.0/24 |                       {              }
+| ┌-------------------┐        |              ________{    Internet    }¯¯¯¯¯¯\
+| | Host A: 10.2.2.33 |   ┌------------┐     /         {              }        \    Packet
+| └-------------------┘   |  Router 1  |    /           {____________}       ┌----------------------┐
+|                   ┌-----/ Static NAT \------┐                              | SRC:  54.4.5.9 :7771 |
+|                   | 10.2.2.33 <-> 73.8.2.33 |                              | DEST: 10.2.2.33: 80  |
+|                   └-------------------------┘                              └----------------------┘
+|                              |                                                        |
+└------------------------------┘                                                ┌------------------┐
+                                                                                | Host B: 54.4.5.9 |
+The Packet would be immediately dropped, because the destination IP is          └------------------┘
+part of the "private" IP Addresses scheme, which are reserved.
+
+In order for Host B to send packets to Host A, it will have to use Router 1's IP Address:
+
+
+┌------------------------------┐                        {¯¯¯¯¯¯¯¯¯¯¯¯}
+|  Inside Network: 10.2.2.0/24 |                       {              }
+| ┌-------------------┐        |              ________{    Internet    }¯¯¯¯¯¯\
+| | Host A: 10.2.2.33 |   ┌------------┐     /         {              }        \    Packet
+| └-------------------┘   |  Router 1  |    /           {____________}       ┌----------------------┐
+|                   ┌-----/ Static NAT \------┐                              | SRC:  54.4.5.9 :7771 |
+|                   | 10.2.2.33 <-> 73.8.2.33 |                              | DEST: 73.8.2.33: 80  |
+|                   └-------------------------┘                              └----------------------┘
+|                              |                                                        |
+└------------------------------┘                                                ┌------------------┐
+                                                                                | Host B: 54.4.5.9 |
+Now, Host B's packet is able to propagate through the internet and reach        └------------------┘
+Host A. The only thing Router 1 had to do was translate 73.8.2.33 into
+10.2.2.33, once it received the packet from Host B.
+  - Notice how none of the ports changed.
+    - This makes it a NAT (as only the Layer 3 header was changed)
+
+
+┌---------------------------------------------------------------┐
+|                                   Inside Network: 10.2.2.0/24 |                   ┌----------------------┐
+| ┌-------------------┐         **CHANGED**                     |                   | SRC:  54.4.5.9 :7771 |
+| | Host A: 10.2.2.33 |<--<--┌----------------------┐           |      /<--<--<--<--| DEST: 73.8.2.33: 80  |
+| └-------------------┘      | SRC:  54.4.5.9 :7771 |<--<--<-┌------------┐         └----------------------┘
+|          |                 | DEST: 10.2.2.33: 80  |        |  Router 1  |            **ORIGINAL**
+|          |                 └----------------------┘  ┌-----/ Static NAT \------┐
+| ┌----------------------┐                             | 10.2.2.33 <-> 73.8.2.33 |
+| | SRC:  10.2.2.33: 80  |-->-->-->-->-->-->-->-->-->--└-------------------------┘     ┌----------------------┐
+| | DEST: 54.4.5.9 :7771 |                                      |     \                | SRC:  73.8.2.33: 80  |
+| └----------------------┘                                      |      \-->-->-->-->-->| DEST: 54.4.5.9 :7771 |
+|    **FLIPPED**                                                |                      └----------------------┘
+└---------------------------------------------------------------┘                       **CHANGED**
+
+The static NAT doesn't care whethere it translates between public IP Addresses or private IPs.
+  - Public <-> Public
+  - Private <-> Private
+  - Public <-> Private
+  - All of these WORK and are VALID
+
+HOWEVER, when communicating on the internet, one must use public IP Addresses.
+
+
+================= SUMMARY =================
+
+For INBOUND PACKETS the destination is translated (73.8.2.33 -> 10.2.2.33)
+For OUTBOUND PACKETS the source is translated (10.2.2.33 -> 73.8.2.33)
+  - The packets are translated whether they are initiated INTERNALLY or EXTERNALLY
+     - Static NAT is BIDIRECTIONAL
+
+Static NAT also does not conserve IP Addresses.
+  - In the scenario above, we have a mapping of 10.2.2.33 <-> 73.8.2.33
+  - If we added another Host (Host C), we would need another mapping
+    - Static NAT maps every private IP address to a corresponding public IP address one-to-one.
+  - If we add Host C:
+
+      ┌------------┐
+      |  Router 1  |
+┌-----/ Static NAT \------┐
+| 10.2.2.33 <-> 73.8.2.33 |
+| 10.2.2.44 <-> 73.8.2.34 |
+└-------------------------┘
+
+Static NAT DOES NOT conserve ANY IP Addresses.
+
+The use of a Static NAT is to make internal resources EXTERNALLY accessible.
+
+
