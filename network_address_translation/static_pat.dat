@@ -1,0 +1,93 @@
+========================== Static Port Address Translation ==========================
+
+
+
+A packet contains a Data Payload, a L4 header, and a L3 header:
+  - Data Payload: Data
+  - L4 Header: Responsible for handling ports (src Port - dest Port)
+  - L3 Header: Responsible for handling IP Addresses (src IP - dest IP)
+
+Now, if the packet crosses a router and the IP Address AND Port gets changed/translated,
+it is called PAT
+  - Port Address Translation
+  - PAT changes the Layer 3 header and the layer 4 header.
+    - Sometimes, it only changes the port (but this doesn't happen often)
+
+
+Static:
+  - Explicit mapping between an IP:Port and another IP:Port
+  - Explicit mapping between PRE-translation and POST-translation
+     - PRE-translation is the IP Address and/or Port of the "inside" or "local"
+     - POST-translation is the IP Address and/or Port of the "outside"
+
+
+The reason for Static PAT is to make INTERNAL source ports EXTERNALLY accessible.
+   - This is different to a NAT, where we used the IP Addresses.
+   - Here, we are using the Ports
+
+
+┌---------------------------------------------------------------┐
+|                                   Inside Network: 10.4.4.0/24 |
+| ┌-------------------------┐                                   |
+| | Host A: 10.4.4.41 : 8080|                               ┌------------┐
+| └-------------------------┘                               |  Router 1  |
+|                                                ┌----------/ Static PAT \----------┐
+| ┌-------------------------┐                    | 10.4.4.41:8080 <-> 73.8.2.44:80  |
+| | Host B: 10.4.4.42 : 443 |                    | 10.4.4.42:443  <-> 73.8.2.44:443 |
+| └-------------------------┘                    └----------------------------------┘
+|                                                               |     |
+└---------------------------------------------------------------┘     |
+                                                                      |
+For Host C and Host D to communicate with Hosts A and B,        {¯¯¯¯¯¯¯¯¯¯¯¯}
+they can't use their private (internal) IP Addresses, as       {              }
+the packages would be immediately dropped on the internet.    {    Internet    }
+  - Instead, they must use a correlating public IP Address     {              }
+  - Notice if we send packets to 73.8.2.44:443, the port        {____________}
+    doesn't get translated. However, we need this to prevent       /      \
+    random packets addressed to any port be sent through.         /        \
+  - If we just used NAT, any packet will be     ┌------------------┐      ┌------------------┐
+    sent to Host B, regardless of the port.     | Host C: 54.4.5.7 |      | Host D: 45.5.4.8 |
+                                                └------------------┘      └------------------┘
+
+┌----------------------------------------------------------------------┐
+|                                          Inside Network: 10.4.4.0/24 |                  ┌----------------------┐
+| ┌-------------------┐         **CHANGED**                            |                  | SRC:  54.4.5.7 :7771 |
+| | Host A: 10.4.4.41 |<--<--┌------------------------┐                |     /<--<--<--<--| DEST: 73.8.2.44: 80  |
+| └-------------------┘      | SRC:  54.4.5.7 :7771   |<--<--<--<--<┌------------┐        └----------------------┘
+|          |                 | DEST: 10.4.4.41: 8080  |             |  Router 1  |           **ORIGINAL**
+|          |                 └------------------------┘  ┌----------/ Static PAT \----------┐
+| ┌------------------------┐                             | 10.4.4.41:8080 <-> 73.8.2.44:80  |
+| | SRC:  10.4.4.41: 8080  |-->-->-->-->-->-->-->-->-->--| 10.4.4.42:443  <-> 73.8.2.44:443 |
+| | DEST: 54.4.5.7 :7771   |                             └----------------------------------┘
+| └------------------------┘                                           |     \                ┌----------------------┐
+|    **FLIPPED**                                                       |      \-->-->-->-->-->| SRC:  73.8.2.44: 80  |
+└----------------------------------------------------------------------┘                      | DEST: 54.4.5.7 :7771 |
+                                                                                              └----------------------┘
+                                                                                                **CHANGED**
+The benefits of using PAT is that it facilitates the use of Non-Standard Ports.
+  - For instance, when we try to access a website: http://site.com, the http
+    tells the underlying network software to send the packets to port 80.
+    The Router is able to convert the packet's IP Address and Port number
+    to the correct IP:Port mapping so the correct server can receive the packet.
+     - If we didn't have PAT, we would have to type http://site.com:8080 to access
+       port 8080 of IP 10.4.4.41
+  - Static PAT offers greater control and predictability, as all PATs are explicitly typed.
+
+
+Static PAT also has something called PORT FORWARDING / HOLE PUNCHING
+  - This refers to what we can see in the second line of Router 1's PAT table
+  - It refers to only letting through specific ports, without changing the Port number
+
+
+For INBOUND PACKETS the destination is translated (73.8.2.44:80 -> 10.4.4.41:8080)
+For OUTBOUND PACKETS the source is translated (10.4.4.41:8080 -> 73.8.2.44:80)
+  - The packets are translated whether they are initiated INTERNALLY or EXTERNALLY
+    - Static NAT is BIDIRECTIONAL
+
+
+Static PAT is able to conserve IP Addresses
+  - Multiple Servers can use one Public IP Address
+    - This is because the public IP Address is "divided" using ports
+    - Meaning, whenever it receives a packet on port XYZ, it will forward
+      the packet to some internal server
+

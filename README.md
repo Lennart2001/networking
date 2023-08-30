@@ -41,6 +41,10 @@
 ## Network Address Translation (NAT)
 - **[IP Conservation](network_address_translation/ip_conservation.dat)**
 - **[Static NAT](network_address_translation/static_nat.dat)**
+- **[Static PAT](network_address_translation/static_pat.dat)**
+- **Dynamic NAT**
+- **Dynamic PAT**
+
 
 ## Access Control Lists (ACLs)
 
@@ -184,4 +188,4 @@
 
 ## Acknowledgments
 
-- **Ed Harmoush** - [Practical Networking](http://www.practicalnetworking.net) - For sharing his knowledge with everyone.
+- **Ed Harmoush** - [Practical Networking](http://www.practicalnetworking.net) - For sharing his knowledge with everyone for free.
