@@ -43,7 +43,8 @@
 - **[Static NAT](network_address_translation/static_nat.dat)**
 - **[Static PAT](network_address_translation/static_pat.dat)**
 - **Dynamic NAT**
-- **Dynamic PAT**
+- **[Dynamic PAT](network_address_translation/dynamic_pat.dat)**
+
 
 
 ## Access Control Lists (ACLs)

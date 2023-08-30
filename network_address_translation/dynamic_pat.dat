@@ -1,0 +1,92 @@
+========================== Dynamic Port Address Translation ==========================
+
+
+
+A packet contains a Data Payload, a L4 header, and a L3 header:
+  - Data Payload: Data
+  - L4 Header: Responsible for handling ports (src Port - dest Port)
+  - L3 Header: Responsible for handling IP Addresses (src IP - dest IP)
+
+Now, if the packet crosses a router and the IP Address AND Port gets changed/translated,
+it is called PAT
+  - Port Address Translation
+  - PAT changes the Layer 3 header and the layer 4 header.
+    - Sometimes, it only changes the port (but this doesn't happen often)
+
+Dynamic:
+  - The device chooses the POST attributes of the translations
+  - If a packet travels OUTBOUND, the device will update its Router Translation Table
+    and add the internal IP:Port mapping of a host, and the public IP Address with
+    a random port mapping:  192.168.1.2:7777 <-> 32.8.2.6:9999
+                                Internal            Public
+
+
+┌---------------------------------------------------------┐
+|                             Inside Network: 10.6.6.0/24 |
+| ┌-------------------┐                    ┌---------------------------┐
+| | Host A: 10.6.6.61 |\                   |       Dynamic PAT         |              ┌------------------┐
+| └-------------------┘ \                  | 10.6.6.0/24 --> 32.8.2.66 |     _________| Host D: 82.6.4.2 |
+| ┌-------------------┐  \___              └---------------------------┘    /         └------------------┘
+| | Host B: 10.6.6.62 |\     \____             ┌-------------------┐       /
+| └-------------------┘ \__       \_____       |     Router 1      |      /
+| ┌-------------------┐    \____________\┌-----/ Translation Table \-----┐            ┌------------------┐
+| | Host C: 10.6.6.63 |------------------└-------------------------------┘------------| Host E: 28.2.4.6 |
+| └-------------------┘                                   |                           └------------------┘
+└---------------------------------------------------------┘
+
+
+                   ┌------------------------┐
+                   | SRC:  10.6.6.61 : 2222 |
+                   | DEST: 82.6.4.2  : 443  |
+                   └------------------------┘
+┌-------------------┐       |                                                      ┌------------------┐
+| Host A: 10.6.6.61 |-->-->-->-->-->-->-->-->--┌-------------------┐-->-->-->-->-->| Host D: 82.6.4.2 |
+└-------------------┘                          |     Router 1      |               └------------------┘
+      ┌------------------------┐      _┌-------/ Translation Table \-------┐
+      | SRC:  10.6.6.62 : 3333 |     / | 10.6.6.61:2222 <-> 32.8.2.66:7777 |         ┌------------------┐
+      | DEST: 28.2.4.6  : 80   |    /  | 10.6.6.62:3333 <-> 32.8.2.66:9999 |-->-->-->| Host E: 28.2.4.6 |
+      └------------------------┘   /   | 10.6.6.63:3333 <-> 32.8.2.66:6666 |         └------------------┘
+┌-------------------┐   |         /   /└-----------------------------------┘
+| Host B: 10.6.6.62 |-->|->-->-->/   /          *Notice the importance of randomizing the public ports
+└-------------------┘               /              - If we didn't randomize, and just used the internal
+┌-------------------┐              /                 ports, we would clash 32.8.2.66:3333 == 32.8.2.66:3333
+| Host C: 10.6.6.63 |-->-->-|>-->-/
+└-------------------┘       |
+                    ┌------------------------┐
+                    | SRC:  10.6.6.63 : 3333 |
+                    | DEST: 28.2.4.6  : 80   |
+                    └------------------------┘
+
+                     **LEAVE**                                       **ARRIVE**
+         A)        ┌------------------------┐                      ┌------------------------┐
+                   | SRC:  10.6.6.61 : 2222 |  >  >  >  >  >  >  > | SRC:  32.8.2.66 : 7777 |
+                   | DEST: 82.6.4.2  : 443  |                      | DEST: 82.6.4.2  : 443  |
+                   └------------------------┘                      └------------------------┘
+┌-------------------┐-->-->-->-->-->-->-->-->--┌-------------------┐-->-->-->-->-->┌------------------┐
+| Host A: 10.6.6.61 |                          |     Router 1      |               | Host D: 82.6.4.2 |
+└-------------------┘<--<--<--<--<--<--┌-------/ Translation Table \-------┐<--<--<└------------------┘
+        B)  ┌------------------------┐ | 10.6.6.61:2222 <-> 32.8.2.66:7777 |   ┌------------------------┐
+            | SRC:  82.6.4.2  : 443  | └-----------------------------------┘   | SRC:  82.6.4.2  : 443  |
+            | DEST: 10.6.6.61 : 2222 | <  <  <  <  <  <  <  <  <  <  <  <  <  <| DEST: 32.8.2.66 : 7777 |
+            └------------------------┘                                         └------------------------┘
+             **ARRIVE**                                                          **LEAVE**
+
+
+Dynamic Port Address Translation is UNIDIRECTIONAL
+  - This means, for a "connection" to be created, the internal host has to send a packet to the public IP Address
+  - If the Public IP Address were to send a packet first, the Router would immediately discard the packet
+    - ** If the INBOUND IP:Port <-> OUTBOUND IP:Port mapping doesn't exist in the Router's table yet **
+  - The router will only create a table entry from INBOUND sent packets
+    - This is logical, as the router doesn't know if the host is even listening on that port.
+  - Traffic must be initiated from the inside
+
+You can combine a Dynamic PAT with a Static PAT
+  - You would manually add a translation mapping
+
+
+Dynamic PAT allows many hosts with Private IP Addresses to share one Public IP Address
+  - This is sometimes referred to as a "many to one" or "one to many"
+  - Dynamic PAT also has the greatest potential for IP Address conservation
+  - You can have ~65000 Private IP Addresses translated to one Public IP Address
+    - If you needed more (double) you could simply add another Public IP Address 
+  
