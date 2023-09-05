@@ -1,0 +1,34 @@
+====================== Twice Network Address Translation ======================
+
+
+Every type of NAT we have mentioned has one thing in common:
+  - Each translation only translated the SOURCE of the Packet (for OUTBOUND)
+  
+
+In Twice NAT, we are translating the Source and the Destination of a Packet:
+  - Packets are still translated using:
+    - Static NAT, Static PAT, Dynamic NAT, Dynamic PAT
+
+
+┌---------------------------------------------------------------┐
+|                                   Inside Network: 10.4.4.0/24 |
+|                                                     ┌-----------------┐
+|    *packet*                                         |    Router 1     |
+|  ┌------------------------┐        ┌------------------------------------------------------┐
+|  | SRC:  10.6.6.99:9999   |________| If source is 10.6.6.0/24 and destination is 8.8.8.8  |
+|  | DEST: 8.8.8.8  :53     |        |   - Dynamic PAT source to 32.8.2.55                  |
+|  └------------------------┘        |   - Static NAT destination to 32.9.1.8               |
+|                                    └------------------------------------------------------┘
+└---------------------------------------------------------------┘                  |
+                                                                                   |
+*Notice how we changed the Source and the Destination of the           ┌------------------------┐
+ packet.                                                               | SRC:  32.8.2.55:5555   |
+                                                                       | DEST: 32.9.1.8 :53     |
+                                                                       └------------------------┘
+However, also notice that we did a POLICY NAT.
+  - This is because we are matching the Source and Destination
+    - If source is 10.6.6.0/24 and destination is 8.8.8.8
+
+The Twice NAT comes from "Two times NAT" -> NAT the Source AND NAT the Destination
+
+
