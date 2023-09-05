@@ -81,11 +81,57 @@ Dynamic NATs are Bidirectional when active.
     - During the duration of that connection, each Host OWNS a Public IP Address
        - If Host E sends a packet to 54.5.4.2, it automatically gets forwarded to Host B.
   - This is particularly useful for protocols which require a secondary, inbound connection to the Client
-    - File Transfer Protocol (FTP)
+    - One protocol would be the File Transfer Protocol (FTP)
+      - Active FTP & Passive FTP
+
+Creating LAZY "Static NAT" ~> Dynamic NAT?
+  - Suppose we had 20 hosts and 20 Public IP Addresses to use
+    - We could assign each Host to a Public IP Address
+      - Also known as creating a Static NAT
+    - We could also create a Dynamic NAT, where the IP Addresses are being handled automatically.
+      - This would only work though if you had an equal number of Hosts and Public IP Addresses
+        - More specifically, you would need more or equal Public IPs than Hosts for this to work
+        - # Public IPs >= # Hosts
+  - With our topology from above, where we have 4 Hosts and 3 public IP Addresses,
+    the Lazy "Static NAT" would not work.
+    - However, if we DIDN'T have host B, then we would have 3 Hosts and 3 Public IP Address,
+      then we could configure the network to utilize the Lazy "Static NAT"
+  - Additionally, for Lazy "Static NAT" to be a good solution, we must not care about the IP mapping
+    - Since the Router randomly decides which Host gets which IP Address, and if two Hosts are
+      "offline" and are re-establishing their connection then they might end up with different
+      IPs than before
+    - The exact mapping of Private IPs to Public IPs must be irrelevant
+
+┌----------------------------------┐        ┌----------------------------------┐
+|             Router 1             |        |             Router 1             |  *Notice how all Hosts are
+|            Dynamic NAT           |        |            Dynamic NAT           |   assigned a new Public IP
+|     10.7.7.0/24 will share:      |        |     10.7.7.0/24 will share:      |   Address.
+|--┐ 54.5.4.1 through 54.5.4.3 ┌---|   ==   |--┐ 54.5.4.1 through 54.5.4.3 ┌---|
+|  └---------------------------┘   |   ==   |  └---------------------------┘   |  *This must not interfere with
+| 10.7.7.72:2222 <-> 54.5.4.2:2222 |        | 10.7.7.72:2222 <-> 54.5.4.3:2222 |   functionality
+| 10.7.7.73:3333 <-> 54.5.4.3:3333 |        | 10.7.7.73:3333 <-> 54.5.4.1:3333 |
+| 10.7.7.74:4445 <-> 54.5.4.1:4445 |        | 10.7.7.74:4445 <-> 54.5.4.2:4445 |
+└----------------------------------┘        └----------------------------------┘
 
 
+The Disadvantages of Dynamic NAT:
+
+Dynamic NATs are NOT deterministic
+  - Each Host gets randomly assigned an available Public IP Address
+    - This makes things challenging when trying to create specific rules for specific IPs
+
+Dynamic NATs have inconsistent connectivity
+  - Going back to our topology, if Host A doesn't have a active connection, it will lose its Public IP Address
+    - Then, Host A cannot communicate with the outside anymore until a Public IP gets freed
+    - Also, all the messages meant to Host A's previous Public IP are now being sent to the wrong Host
+  - Inconsistent Connectivity is a hassle to troubleshoot in the real world
+    - Dynamic NAT is not very common in the modern world
 
 
+=================== SIDE NOTE ===================
+
+Dynamic PAT and Dynamic NAT are often times used interchangeably
+  - Most of the time, when someone says Dynamic NAT, they mean Dynamic PAT
 
 
 
