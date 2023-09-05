@@ -1,0 +1,228 @@
+=============================== Dynamic Network Address Translation ===============================
+
+
+A packet contains a Data Payload, a L4 header, and a L3 header:
+  - Data Payload: Data
+  - L4 Header: Responsible for handling ports (src Port - dest Port)
+  - L3 Header: Responsible for handling IP Addresses (src IP - dest IP)
+
+Now, if the packet crosses a router and ONLY the IP address gets changed/translated,
+it is called NAT
+  - Network Address Translation
+  - NAT only changes the Layer 3 header.
+
+
+Dynamic:
+  - The device chooses the POST attributes of the translations
+  - If a packet travels OUTBOUND, the device will update its Router Translation Table
+    and add the internal IP:Port mapping of a host, and the public IP Address with
+    a random port mapping:  192.168.1.2:7777 <-> 32.8.2.6:9999
+                                Internal            Public
+
+Keep in mind that we DO NOT translate the ports
+  - This means each host will have its OWN IP Address
+    - Multiple Devices cannot share IP Addresses
+
+
+This is out current topology:
+┌----------------------------------------------------------┐
+|                              Inside Network: 10.7.7.0/24 |
+| ┌--------------------┐                                   |                                     ┌------------------┐
+| | Host A: 10.7.7.71  |-----\           ┌----------------------------------┐     _________  /---| Host E: 86.6.6.6 |
+| └--------------------┘      \          |             Router 1             |    {         }/    └------------------┘
+| ┌--------------------┐       \---------|            Dynamic NAT           |   {           }    ┌------------------┐
+| | Host B: 10.7.7.72  |-----------------|     10.7.7.0/24 will share:      |   |           |----| Host F: 86.6.6.7 |
+| └--------------------┘                 |--┐ 54.5.4.1 through 54.5.4.3 ┌---|   |           |    └------------------┘
+| ┌--------------------┐                 |  └---------------------------┘   |---|  Internet |    ┌------------------┐
+| | Host C: 10.7.7.73  |-----------------| 10.7.7.71:1111 <-> 54.5.4.1:1111 |   |           |----| Host G: 86.6.6.8 |
+| └--------------------┘       /---------| 10.7.7.72:2222 <-> 54.5.4.2:2222 |   |           |    └------------------┘
+| ┌--------------------┐      /          | 10.7.7.73:3333 <-> 54.5.4.3:3333 |   {           }    ┌------------------┐
+| | Host D: 10.7.7.74  |-----/           |                                  |    {_________}\----| Host H: 86.6.6.9 |
+| └--------------------┘                 └----------------------------------┘                    └------------------┘
+└----------------------------------------------------------┘
+
+
+When Host A sends a package to Host E, Host A gets assigned 54.5.4.1 as it's public IP Address
+  - The mapping will be something like 10.7.7.71:1111 <-> 54.5.4.1:1111
+
+When Host B sends a package to Host F, Host B gets assigned 54.5.4.2 as it's public IP Address
+  - The mapping will be something like 10.7.7.72:2222 <-> 54.5.4.2:2222
+
+When Host C sends a package to Host G, Host C gets assigned 54.5.4.3 as it's public IP Address
+  - The mapping will be something like 10.7.7.73:3333 <-> 54.5.4.3:3333
+
+When Host D tries to send a package to Host H, the package gets DROPPED, as there is no available IP Address
+for Host D at this time.
+
+ONCE any host releases their connection, say Host A, then that associated Public IP Address becomes freed again,
+which can then be picked up by Host D, if it tries to send a new packet.
+  - So, whichever hosts shoots out a packet next will receive the available Public IP Address
+
+┌----------------------------------┐
+|             Router 1             |
+|            Dynamic NAT           |
+|     10.7.7.0/24 will share:      |
+|--┐ 54.5.4.1 through 54.5.4.3 ┌---|
+|  └---------------------------┘   |
+|                                  |
+| 10.7.7.72:2222 <-> 54.5.4.2:2222 |
+| 10.7.7.73:3333 <-> 54.5.4.3:3333 |
+| 10.7.7.74:4445 <-> 54.5.4.1:4445 |
+└----------------------------------┘
+
+Now, if Host A tries to send out a packet, it will get immediately DROPPED because we do not have an IP Address
+available for Host A.
+
+
+Here are some use cases for Dynamic NAT:
+
+Dynamic NATs are Bidirectional when active.
+  - Notice how we assigned WHOLE IP Addresses to each Host
+    - During the duration of that connection, each Host OWNS a Public IP Address
+       - If Host E sends a packet to 54.5.4.2, it automatically gets forwarded to Host B.
+  - This is particularly useful for protocols which require a secondary, inbound connection to the Client
+    - File Transfer Protocol (FTP)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
